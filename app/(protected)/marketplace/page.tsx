@@ -69,9 +69,7 @@ const Marketplace = async () => {
 
   const data = await Promise.all(
     fileNames.map(async (fileName) => {
-      const response = await fetch(
-        `http://localhost:3000/english/data/${fileName}`,
-      );
+      const response = await fetch(`/english/data/${fileName}`);
       return await response.json();
     }),
   );
