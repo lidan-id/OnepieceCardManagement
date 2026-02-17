@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+model User {
+  id            String          @id @default(cuid())
+  username      String          @unique
+  email         String          @unique
+  password      String
+  balance       Float           @default(0)
+  inventory     UserInventory[]
+  listings      Marketplace[]   @relation("Seller")
+  decks         Deck[]
+}
+
+model Deck {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   
+  leaderCardId String
+  leaderCardImg String
+  user        User     @relation(fields: [userId], references: [id])
+  cards       UserInventory[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserInventory {
+  id          String   @id @default(cuid())
+  userId      String
+  cardId      String   
+  cardName    String
+  cardImgUrl  String
+  cardCategory String
+  color       String[]
+  isStoredInDeck Boolean @default(false)
+  isListed    Boolean @default(false)
+  purchasePrice       Float @default(0)
+  user        User     @relation(fields: [userId], references: [id])
+  marketplaceListing Marketplace?
+  deckId         String?  
+  deck           Deck?    @relation(fields: [deckId], references: [id])
+}
+
+model Marketplace {
+  id              String        @id @default(cuid())
+  inventoryId     String        @unique
+  sellerId        String
+  price           Float
+  createdAt       DateTime      @default(now())
+  inventory       UserInventory @relation(fields: [inventoryId], references: [id])
+  seller          User          @relation("Seller", fields: [sellerId], references: [id])
+}
