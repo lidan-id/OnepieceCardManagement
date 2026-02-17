@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  props: { params: Promise<{ id: string }> },
 ) {
+  const params = await props.params;
   const userId = params.id;
 
   const userDecks = await prisma.deck.findMany({ where: { userId: userId } });
