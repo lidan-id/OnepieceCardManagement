@@ -3,7 +3,8 @@ import { TokenPayload } from "@/app/types/Token";
 import { prisma } from "@/lib/prisma";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
-import React from "react";
+import path from "path";
+import { promises as fs } from "fs";
 
 const Marketplace = async () => {
   const fileNames = [
@@ -69,8 +70,16 @@ const Marketplace = async () => {
 
   const data = await Promise.all(
     fileNames.map(async (fileName) => {
-      const response = await fetch(`/english/data/${fileName}`);
-      return await response.json();
+      const filePath = path.join(
+        process.cwd(),
+        "public",
+        "english",
+        "data",
+        fileName,
+      );
+
+      const fileContents = await fs.readFile(filePath, "utf8");
+      return JSON.parse(fileContents);
     }),
   );
 
