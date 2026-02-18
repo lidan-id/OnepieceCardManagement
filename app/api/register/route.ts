@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { StarterDeckDetailProps } from "@/app/types/Card";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -77,6 +79,25 @@ export async function POST(request: Request) {
 
       await tx.userInventory.createMany({
         data: inventoryData,
+      });
+
+      const userData = {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+      };
+
+      const token = jwt.sign(userData, process.env.SECRET_KEY as string, {
+        expiresIn: "1d",
+      });
+
+      (await cookies()).set({
+        name: "authToken",
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 24 * 60 * 60,
+        sameSite: "strict",
       });
 
       return newUser;

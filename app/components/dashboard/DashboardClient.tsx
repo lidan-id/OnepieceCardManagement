@@ -5,8 +5,7 @@ import DashboardCard from "./DashboardCard";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AlertCard from "../ui/AlertCard";
-import GlassLayer from "../ui/GlassLayer";
-import { X } from "lucide-react";
+import { X, Loader2, Wallet, Plus, AlertTriangle } from "lucide-react";
 
 const DashboardClient = ({
   user,
@@ -31,8 +30,8 @@ const DashboardClient = ({
   });
 
   const [isShowModalDelete, setIsShowModalDelete] = useState(false);
-
   const [deckId, setDeckId] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const showAlertCard = (color: string, title: string, subtitle: string) => {
     setAlertAttribut({ color, title, subtitle });
@@ -41,8 +40,6 @@ const DashboardClient = ({
       setShowAlert(false);
     }, 3000);
   };
-
-  const [loading, setLoading] = useState(false);
 
   const handleOpenDeleteModal = (id: string) => {
     setIsShowModalDelete(true);
@@ -62,60 +59,106 @@ const DashboardClient = ({
       });
       const data = await response.json();
       if (!response.ok) {
-        showAlertCard("red", "Error", data.message || "Save deck failed");
+        showAlertCard("red", "Error", data.message || "Delete failed");
       } else {
-        showAlertCard("green", "Success", "Save deck successful");
-
+        showAlertCard("green", "Success", "Deck deleted successfully");
+        setIsShowModalDelete(false);
         router.refresh();
       }
     } catch (error) {
-      showAlertCard("red", "Error", "Save failed");
+      showAlertCard("red", "Error", "Connection failed");
     } finally {
       setLoading(false);
     }
   };
 
   if (!user) {
-    return <p>Access Denied. Please Login</p>;
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-950 text-white">
+        <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
+      </div>
+    );
   }
+
   return (
-    <div className=" h-full p-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-5 items-start justify-between">
-        {/* Welcome*/}
-        <div className="leading-6">
-          <h1 className="text-[22px] font-bold">
-            Welcome back,{" "}
-            <span className="text-amber-500 line-">{user.username}</span>
-          </h1>
-          <span className="text-[13px] text-gray-500">
-            Here's your deck building overview
-          </span>
-        </div>
-
-        {/* Balance */}
-        <div className="text-[18px] font-bold shadow-md p-2 border rounded-xl border-gray-400">
-          Balance:{" "}
-          <span className="text-amber-500">{userBalance.toLocaleString()}</span>
-        </div>
-      </div>
-
-      <div className="font-bold text-[24px] mt-10 mb-5">Here is Your Decks</div>
-
-      {/* Decks */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {userDecks.map((deck, index) => (
-          <div key={index} className="col-span-1">
-            <DashboardCard
-              deck={deck}
-              handleEditDeck={handleEditDeck}
-              handleOpenDeleteModal={handleOpenDeleteModal}
-            />
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-amber-500/30">
+      {/* Main Container */}
+      <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between bg-slate-900/50 p-6 rounded-2xl border border-slate-800 backdrop-blur-sm">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+              Welcome back,{" "}
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-400 to-orange-500">
+                {user.username}
+              </span>
+            </h1>
+            <p className="text-slate-400">
+              Manage your decks and prepare for battle.
+            </p>
           </div>
-        ))}
+
+          {/* Balance Card */}
+          <div className="flex items-center gap-4 bg-slate-800/80 px-6 py-3 rounded-xl border border-slate-700 shadow-lg">
+            <div className="p-2 bg-amber-500/10 rounded-full">
+              <Wallet className="w-6 h-6 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">
+                Balance
+              </p>
+              <p className="text-xl font-bold text-white font-mono">
+                ¥ {userBalance.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Decks Section */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span className="w-1 h-8 bg-amber-500 rounded-full block"></span>
+              Your Decks
+            </h2>
+            <button
+              onClick={() => {
+                router.push("/deck-builder/create-new");
+              }}
+              className="flex items-center gap-2 text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition"
+            >
+              <Plus className="w-4 h-4" /> New Deck
+            </button>
+          </div>
+
+          {userDecks.length === 0 ? (
+            <div className="text-center py-20 bg-slate-900/50 rounded-2xl border border-dashed border-slate-700">
+              <p className="text-slate-500 text-lg">
+                You don't have any decks yet.
+              </p>
+              <button className="mt-4 text-amber-500 hover:text-amber-400 font-bold">
+                Create one now
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {userDecks.map((deck, index) => (
+                <div key={index} className="col-span-1">
+                  <DashboardCard
+                    deck={deck}
+                    handleEditDeck={handleEditDeck}
+                    handleOpenDeleteModal={handleOpenDeleteModal}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Alert Toast */}
       {showAlert && (
-        <div className="fixed z-9999 bottom-2 left-2 animate-left-slide-in">
+        <div className="fixed z-100 bottom-5 left-5 animate-in slide-in-from-left-5 duration-300">
           <AlertCard
             bgColor={alertAttribut.color}
             title={alertAttribut.title}
@@ -123,52 +166,62 @@ const DashboardClient = ({
           />
         </div>
       )}
+
+      {/* Delete Modal */}
       {isShowModalDelete && (
         <div
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setIsShowModalDelete(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-md rounded-2xl shadow-2xl transform transition-all scale-100"
+            className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl transform transition-all"
           >
-            <div className="flex items-center justify-between  p-5">
-              <h1 className="text-lg font-bold text-gray-800">Are you sure?</h1>
-              <button
-                onClick={() => setIsShowModalDelete(false)}
-                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Delete Deck?
+              </h3>
+              <p className="text-slate-400 text-sm">
+                Are you sure you want to delete this deck? This action cannot be
+                undone.
+              </p>
             </div>
 
-            <div className="flex justify-end gap-3 p-3 rounded-b-2xl">
+            <div className="flex gap-3 p-6 pt-0">
               <button
                 onClick={() => setIsShowModalDelete(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
                   handleDeleteDeck();
-                  setIsShowModalDelete(false);
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 active:scale-95 rounded-lg shadow-sm hover:shadow transition-all"
+                disabled={loading}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-500 rounded-xl shadow-lg shadow-red-900/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Yes
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Delete"
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
-      {loading ? <GlassLayer /> : <></>}
-      {loading ? (
-        <div className="fixed inset-0 bg-black/90 z-99999 flex items-center justify-center text-white">
-          <h1>Loading</h1>
+
+      {loading && !isShowModalDelete && (
+        <div className="fixed inset-0 bg-black/50 z-101 flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-slate-900 p-4 rounded-xl flex items-center gap-3 border border-slate-700 shadow-xl">
+            <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+            <span className="font-semibold text-white">Processing...</span>
+          </div>
         </div>
-      ) : (
-        <></>
       )}
     </div>
   );

@@ -4,16 +4,16 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  Edit,
-  Plus,
   Save,
   Search,
-  Trash,
   Trash2,
   X,
+  Loader2,
+  Layers,
+  LayoutGrid,
+  Filter,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import GlassLayer from "../ui/GlassLayer";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 
@@ -61,16 +61,13 @@ const DeckBuilderClient = ({
   };
 
   const [loading, setLoading] = useState(false);
-
   const [collection, setCollection] = useState<UserInventory[]>([]);
   const [newDeck, setNewDeck] = useState<UserInventory[]>([]);
-
   const [leaderId, setLeaderId] = useState("");
   const [leaderCardImg, setLeaderCardImg] = useState("");
-
   const [isShowSaveModal, setIsShowSaveModal] = useState(false);
-
   const [deckName, setDeckName] = useState("");
+  const [searchCardCollection, setSearchCardCollection] = useState("");
 
   useEffect(() => {
     setCollection(userInventory);
@@ -82,8 +79,6 @@ const DeckBuilderClient = ({
       setLeaderId(currentLeader.cardId);
       setLeaderCardImg(currentLeader.cardImgUrl);
     }
-
-    console.log(existDeck);
   }, [userInventory, existDeck]);
 
   const moveCard = (
@@ -96,7 +91,11 @@ const DeckBuilderClient = ({
   ) => {
     const existingCardInTarget = targetList.find((item) => item.id === card.id);
     if (addToNewDeck && existingCardInTarget?.quantity === 4) {
-      showAlertCard("red", "Failed", "Cannot add 4 same card to the deck");
+      showAlertCard(
+        "red",
+        "Limit Reached",
+        "Max 4 copies of the same card allowed.",
+      );
       return;
     }
 
@@ -108,12 +107,12 @@ const DeckBuilderClient = ({
       existingLeaderCardInTarget &&
       card.cardCategory === "Leader"
     ) {
-      showAlertCard("red", "Failed", "Cannot add 2 Leader in 1 deck");
+      showAlertCard("red", "Leader Exists", "You can only have 1 Leader.");
       return;
     }
 
     if (addToNewDeck && totalCardsInDeck >= 51) {
-      showAlertCard("red", "Failed", "Cannot add more than 51 cards in 1 deck");
+      showAlertCard("red", "Deck Full", "Max 51 cards (1 Leader + 50 Deck).");
       return;
     }
 
@@ -156,20 +155,33 @@ const DeckBuilderClient = ({
     0,
   );
 
+  const totalCardsCollection = collection.reduce(
+    (acc, curr) => acc + curr.quantity,
+    0,
+  );
+
   const itHasLeader = newDeck.find((item) => item.cardCategory === "Leader");
 
   const handleTrash = () => {
     setNewDeck([]);
-    setCollection(userInventory);
+    setCollection(userInventory); // Reset collection visually not accurate but simple reset logic
   };
 
   const handleSave = () => {
     if (totalCardsInDeck !== 51) {
-      showAlertCard("red", "Failed", "Must be atleast 51 cards");
+      showAlertCard(
+        "red",
+        "Invalid Deck Size",
+        "Deck must have exactly 51 cards (1 Leader + 50 cards).",
+      );
       return;
     }
     if (!itHasLeader) {
-      showAlertCard("red", "Failed", "Deck must has Leader in it");
+      showAlertCard(
+        "red",
+        "Missing Leader",
+        "Deck must include a Leader card.",
+      );
       return;
     }
 
@@ -177,247 +189,286 @@ const DeckBuilderClient = ({
   };
 
   const handleModalSave = async () => {
-    if (paramsId !== "create-new") {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/edit-deck", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: userData?.id,
-            name: deckName,
-            leaderCardId: leaderId,
-            leaderCardImg: leaderCardImg,
-            collection: collection,
-            newDeck: newDeck,
-            deckId: paramsId,
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          showAlertCard("red", "Error", data.message || "Edit deck failed");
-        } else {
-          showAlertCard("green", "Success", "Save deck successful");
-          setIsShowSaveModal(false);
-          router.push("/dashboard");
-        }
-      } catch (error: any) {
-        console.log(error);
-        showAlertCard("red", "Error", "Edit failed");
-      } finally {
-        setLoading(false);
+    const payload = {
+      userId: userData?.id,
+      name: deckName,
+      leaderCardId: leaderId,
+      leaderCardImg: leaderCardImg,
+      collection: collection,
+      newDeck: newDeck,
+      deckId: paramsId !== "create-new" ? paramsId : undefined,
+    };
+
+    const url =
+      paramsId !== "create-new" ? "/api/edit-deck" : "/api/create-deck";
+    const method = paramsId !== "create-new" ? "PUT" : "POST";
+
+    try {
+      setLoading(true);
+      const response = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        showAlertCard("red", "Error", data.message || "Save deck failed");
+        setIsShowSaveModal(false);
+      } else {
+        showAlertCard("green", "Success", "Deck saved successfully!");
+        setIsShowSaveModal(false);
+        router.push("/dashboard");
       }
-    } else {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/create-deck", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: userData?.id,
-            name: deckName,
-            leaderCardId: leaderId,
-            leaderCardImg: leaderCardImg,
-            collection: collection,
-            newDeck: newDeck,
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          showAlertCard("red", "Error", data.message || "Save deck failed");
-          setIsShowSaveModal(false);
-        } else {
-          showAlertCard("green", "Success", "Save deck successful");
-          setIsShowSaveModal(false);
-          router.push("/dashboard");
-        }
-      } catch (error) {
-        showAlertCard("red", "Error", "Save failed");
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
+    } catch (error) {
+      showAlertCard("red", "Error", "Connection failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <div className="h-screen p-8 flex sm:flex-row flex-col">
-        {/* Left Side */}
-        <div className="flex bg-white flex-1 border border-gray-300 rounded-md overflow-hidden">
-          <div className="flex flex-col w-full h-full">
-            {/* Left Header */}
-            <div className="border-b p-4 border-gray-300">
-              <div className="flex items-center justify-between text-[14px] mb-2">
-                <h1 className="font-bold">Your Collection</h1>
-                <p className="text-[11px] text-gray-400">6 cards available</p>
+      <div className="h-screen bg-slate-950 text-slate-200 flex flex-col md:flex-row overflow-hidden">
+        {/* --- LEFT SIDE: COLLECTION --- */}
+        <div className="flex-1 flex flex-col h-[50vh] md:h-full border-b md:border-b-0 md:border-r border-slate-800">
+          {/* Header */}
+          <div className="p-4 bg-slate-900 border-b border-slate-800 space-y-3 z-10 shadow-md">
+            <div className="flex items-center justify-between">
+              <h1 className="font-bold text-lg text-white flex items-center gap-2">
+                <LayoutGrid className="w-5 h-5 text-amber-500" />
+                Collection
+              </h1>
+              <span className="text-xs bg-slate-800 px-2 py-1 rounded-full text-slate-400 border border-slate-700">
+                {totalCardsCollection} cards
+              </span>
+            </div>
+
+            {/* Search */}
+            <div className="relative group">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+              <input
+                value={searchCardCollection}
+                onChange={(e) => setSearchCardCollection(e.target.value)}
+                type="text"
+                placeholder="Search card name or ID..."
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-600"
+              />
+            </div>
+          </div>
+
+          {/* Grid Area */}
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-950/50">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {collection.map((card) => {
+                const matches =
+                  card.cardName
+                    .toLowerCase()
+                    .includes(searchCardCollection.toLowerCase()) ||
+                  card.cardId
+                    .toLowerCase()
+                    .includes(searchCardCollection.toLowerCase());
+
+                if (!matches) return null;
+
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => handleAddToDeck(card)}
+                    className="group relative cursor-pointer transition-transform hover:-translate-y-1"
+                  >
+                    <div className="relative aspect-3/4 rounded-lg overflow-hidden border border-slate-800 group-hover:border-amber-500/50 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all">
+                      <img
+                        src={card.cardImgUrl}
+                        alt={card.cardName}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Quantity Badge */}
+                      <div className="absolute bottom-0 right-0 bg-amber-500 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg">
+                        x{card.quantity}
+                      </div>
+
+                      {/* Type Badge (Leader) */}
+                      {card.cardCategory === "Leader" && (
+                        <div className="absolute top-0 left-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br-lg">
+                          L
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* --- MIDDLE: SEPARATOR (Desktop) / INDICATOR --- */}
+        <div className="hidden md:flex flex-col justify-center items-center px-2 bg-slate-900 border-r border-slate-800 z-20">
+          <div className="bg-slate-800 p-2 rounded-full mb-2">
+            <ArrowRight className="w-5 h-5 text-slate-500" />
+          </div>
+          <div className="h-16 w-px bg-slate-700"></div>
+          <div className="bg-slate-800 p-2 rounded-full mt-2">
+            <ArrowLeft className="w-5 h-5 text-slate-500" />
+          </div>
+        </div>
+
+        {/* --- RIGHT SIDE: DECK --- */}
+        <div className="flex-1 flex flex-col h-[50vh] md:h-full bg-slate-900">
+          {/* Header */}
+          <div className="p-4 bg-slate-900 border-b border-slate-800 z-10 shadow-md">
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="font-bold text-lg text-white flex items-center gap-2">
+                <Layers className="w-5 h-5 text-amber-500" />
+                Current Deck
+              </h1>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleTrash}
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                  title="Clear Deck"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold px-4 py-2 rounded-lg transition-transform active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span className="hidden sm:inline">Save Deck</span>
+                </button>
               </div>
-              <div className="flex items-center border border-gray-300 bg-gray-100 text-[11px] rounded-md p-1.5 gap-1">
-                <Search className="w-3 h-3" />
-                <input
-                  type="text"
-                  placeholder="Search cards..."
-                  className="outline-none w-full"
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-semibold">
+                <span
+                  className={
+                    totalCardsInDeck === 51
+                      ? "text-green-400"
+                      : "text-slate-400"
+                  }
+                >
+                  {totalCardsInDeck} / 51 Cards
+                </span>
+                <span className="text-slate-500">Target: 50 + 1 Leader</span>
+              </div>
+              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 ${totalCardsInDeck > 51 ? "bg-red-500" : totalCardsInDeck === 51 ? "bg-green-500" : "bg-amber-500"}`}
+                  style={{
+                    width: `${Math.min((totalCardsInDeck / 51) * 100, 100)}%`,
+                  }}
                 />
               </div>
             </div>
-
-            {/* Card List */}
-            <div className=" grid grid-cols-3 gap-1 p-4 overflow-y-auto">
-              {collection.map((card) => (
-                <div
-                  key={card.id}
-                  onClick={() => {
-                    handleAddToDeck(card);
-                  }}
-                  className="relative col-span-1"
-                >
-                  <img src={card.cardImgUrl}></img>
-                  <div className="absolute bottom-0 right-0 bg-amber-600 w-5 h-5 flex items-center justify-center text-[12px] text-white p-1 rounded-full">
-                    {card.quantity}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
-        </div>
 
-        {/* Middle */}
-        <div className="p-2 flex sm:flex-col flex-row items-center justify-center gap-2">
-          <div className="bg-amber-100 p-2 rounded-full">
-            <ArrowRight className="w-4 h-4 stroke-amber-400 hidden sm:block" />
-            <ArrowUp className="w-4 h-4 stroke-amber-400 sm:hidden block" />
-          </div>
-          <div className="bg-amber-100 p-2 rounded-full">
-            <ArrowLeft className="w-4 h-4 stroke-amber-400 hidden sm:block" />
-            <ArrowDown className="w-4 h-4 stroke-amber-400 sm:hidden block" />
-          </div>
-        </div>
-        {/* -------- */}
-
-        {/* Right Side */}
-        <div className="flex bg-white flex-1 border border-gray-300 rounded-md overflow-hidden">
-          <div className="flex flex-col w-full h-full">
-            {/* Right Header */}
-            <div className="border-b p-4 border-gray-300">
-              <h1 className="font-bold text-[14px] mb-2">New Deck</h1>
-
-              <div className="flex items-center justify-between text-[11px] gap-1">
-                <div className="bg-amber-100 py-1 px-2 rounded-full text-amber-400">
-                  {totalCardsInDeck}/51 cards
-                </div>
-                <div className="flex items-center gap-1 justify-center">
-                  <div
-                    onClick={() => {
-                      handleTrash();
-                    }}
-                    className=" bg-gray-100 border border-gray-300 px-2 py-1 rounded-md"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </div>
-                  <div
-                    onClick={() => {
-                      handleSave();
-                    }}
-                    className="flex gap-1 items-center bg-amber-500 border border-gray-300 px-2 py-1 rounded-md text-[10px]"
-                  >
-                    <Save className="w-3 h-3" />
-                    Save
-                  </div>
-                </div>
+          {/* Grid Area */}
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-900">
+            {newDeck.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50 space-y-3">
+                <Layers className="w-16 h-16" />
+                <p className="text-sm">
+                  Deck is empty. Click cards on the left to add.
+                </p>
               </div>
-            </div>
-
-            {/* Card List */}
-            {newDeck.length !== 0 ? (
-              <div className=" grid grid-cols-3 gap-1 p-4 overflow-y-auto">
+            ) : (
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 {newDeck.map((card) => (
                   <div
                     key={card.id}
-                    onClick={() => {
-                      handleRemoveFromDeck(card);
-                    }}
-                    className="relative col-span-1"
+                    onClick={() => handleRemoveFromDeck(card)}
+                    className="group relative cursor-pointer transition-transform hover:-translate-y-1"
                   >
-                    <img src={card.cardImgUrl}></img>
-                    <div className="absolute bottom-0 right-0 bg-amber-600 w-5 h-5 flex items-center justify-center text-[12px] text-white p-1 rounded-full">
-                      {card.quantity}
+                    <div
+                      className={`relative aspect-3/4 rounded-lg overflow-hidden border transition-all ${card.cardCategory === "Leader" ? "border-amber-500 ring-2 ring-amber-500/20" : "border-slate-700 hover:border-red-500/50"}`}
+                    >
+                      <img
+                        src={card.cardImgUrl}
+                        alt={card.cardName}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Quantity Badge */}
+                      <div className="absolute bottom-0 right-0 bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg border-t border-l border-slate-600">
+                        x{card.quantity}
+                      </div>
+
+                      {/* Leader Badge */}
+                      {card.cardCategory === "Leader" && (
+                        <div className="absolute inset-0 border-2 border-amber-400 rounded-lg pointer-events-none shadow-[inset_0_0_10px_rgba(245,158,11,0.5)]"></div>
+                      )}
+
+                      {/* Hover Remove Icon */}
+                      <div className="absolute inset-0 bg-red-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <div className="bg-red-600 text-white p-1 rounded-full">
+                          <X className="w-4 h-4" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-8 w-full flex-1 text-[12px] text-gray-400 gap-1 text-center">
-                <Plus /> <p>Click Cards from your collection to add them</p>
-              </div>
             )}
           </div>
         </div>
-        <div className="h-15 sm:hidden block"></div>
-        {showAlert && (
-          <div className="fixed z-9999 bottom-2 left-2 animate-left-slide-in">
-            <AlertCard
-              bgColor={alertAttribut.color}
-              title={alertAttribut.title}
-              subtitle={alertAttribut.subtitle}
-            />
-          </div>
-        )}
-        {loading ? <GlassLayer /> : <></>}
       </div>
+
+      {/* --- SAVE MODAL --- */}
       {isShowSaveModal && (
         <div
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setIsShowSaveModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-md rounded-2xl shadow-2xl transform transition-all scale-100"
+            className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
           >
-            <div className="flex items-center justify-between border-b border-gray-100 p-5">
-              <h1 className="text-lg font-bold text-gray-800">
-                Name Your Deck
-              </h1>
+            <div className="flex items-center justify-between border-b border-slate-800 p-5">
+              <h1 className="text-lg font-bold text-white">Save Your Deck</h1>
               <button
                 onClick={() => setIsShowSaveModal(false)}
-                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-full transition-colors"
+                className="text-slate-500 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
                 Deck Name
               </label>
               <input
                 value={deckName}
-                onChange={(e) => {
-                  setDeckName(e.target.value);
-                }}
+                onChange={(e) => setDeckName(e.target.value)}
                 type="text"
                 autoFocus
-                placeholder="e.g. Aggro Zoro v1"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all placeholder:text-gray-400"
+                placeholder="e.g. Zoro Rush V1"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all placeholder:text-slate-600"
               />
-              <p className="text-[11px] text-gray-400 mt-2">
-                Give your deck a unique name to easily find it later.
+              <p className="text-xs text-slate-500 mt-3">
+                Ensure your deck name is unique to easily identify it later in
+                battle.
               </p>
             </div>
 
-            <div className="flex justify-end gap-3 p-5 border-t border-gray-50 bg-gray-50/50 rounded-b-2xl">
+            <div className="flex justify-end gap-3 p-5 border-t border-slate-800 bg-slate-950/30">
               <button
                 onClick={() => setIsShowSaveModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
                   handleModalSave();
-                  setIsShowSaveModal(false);
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 active:scale-95 rounded-lg shadow-sm hover:shadow transition-all"
+                disabled={!deckName.trim()}
+                className="px-6 py-2 text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg shadow-amber-900/20 transition-all active:scale-95"
               >
                 Save Deck
               </button>
@@ -425,12 +476,25 @@ const DeckBuilderClient = ({
           </div>
         </div>
       )}
-      {loading ? (
-        <div className="fixed inset-0 bg-black/90 z-99999 flex items-center justify-center text-white">
-          <h1>Loading</h1>
+
+      {/* --- ALERTS & LOADING --- */}
+      {showAlert && (
+        <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
+          <AlertCard
+            bgColor={alertAttribut.color}
+            title={alertAttribut.title}
+            subtitle={alertAttribut.subtitle}
+          />
         </div>
-      ) : (
-        <></>
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-black/80 z-120 flex items-center justify-center backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+            <span className="text-white font-semibold">Saving Deck...</span>
+          </div>
+        </div>
       )}
     </>
   );

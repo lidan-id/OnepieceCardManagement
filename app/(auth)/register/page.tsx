@@ -1,14 +1,35 @@
 "use client";
-import { Anchor, Lock, Mail, User } from "lucide-react";
-import React, { use, ChangeEvent } from "react";
+import { Anchor, Lock, Mail, User, ArrowRight } from "lucide-react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import AuthTextField from "../../components/auth/AuthTextField";
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AlertCard from "../../components/ui/AlertCard";
-import Logo from "../../components/ui/Logo";
+import GlassLayer from "../../components/ui/GlassLayer";
+
 const RegisterPage = () => {
   const router = useRouter();
+  const carouselImages = [
+    "/auth-image.jpg",
+    "/auth-image-2.jpg",
+    "/auth-image-3.jpg",
+  ];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Transisi gambar halus
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % carouselImages.length,
+      );
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertAttribut, setAlertAttribut] = useState({
@@ -24,27 +45,7 @@ const RegisterPage = () => {
     }, 3000);
   };
 
-  const carouselImages = [
-    "/auth-image.jpg",
-    "/auth-image-2.jpg",
-    "/auth-image-3.jpg",
-  ];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => {
-        return (prevIndex + 1) % carouselImages.length;
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
@@ -65,6 +66,8 @@ const RegisterPage = () => {
       showAlertCard("red", "Error", "Passwords do not match");
       return;
     }
+
+    // Simpan data sementara sebelum onboarding
     const tempData = {
       username,
       email,
@@ -75,97 +78,129 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="relative h-screen flex overflow-hidden">
-      {/* left side */}
-      <div className="relative sm:block hidden w-[50%] h-full">
-        <div className="absolute h-full w-full bg-linear-to-r from-transparent to-white/90 z-20 from-50%"></div>
-        {carouselImages.map((e, index) => (
+    <div className="h-screen flex bg-slate-950 text-slate-200 overflow-hidden">
+      {/* --- LEFT SIDE: CAROUSEL --- */}
+      <div className="relative hidden sm:block w-[50%] h-full bg-slate-900 overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-l from-slate-950 via-slate-950/20 to-transparent z-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-amber-500/10 mix-blend-overlay z-20 pointer-events-none" />
+
+        {carouselImages.map((src, index) => (
           <img
             key={index}
-            className={`absolute object-cover h-full w-full opacity-90 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
-            src={e}
-          ></img>
+            src={src}
+            alt="Register Background"
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1500ms ease-in-out transform ${
+              index === currentImageIndex
+                ? "opacity-100 scale-105 z-10"
+                : "opacity-0 scale-100 z-0"
+            }`}
+          />
         ))}
-      </div>
 
-      {/* right side */}
-      <div className="px-2 sm:w-[50%] w-full h-full flex flex-col justify-center items-center bg-white ">
-        <div className="max-w-75 w-full animate-slide-up">
-          {/* logo and grandline text */}
-          <div className="flex gap-2 items-center justify-center mb-4">
-            <Logo />
-            <div className="">
-              <h1 className="text-slate-900 font-bold text-[16px]">
-                GrandLine
-              </h1>
-              <p className="text-gray-600 text-[8px]">DECK BUILDER</p>
+        {/* Floating Caption Top Left */}
+        <div className="absolute top-10 left-10 z-30">
+          <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10 w-fit shadow-xl">
+            <div className="bg-amber-500 p-2 rounded-xl text-slate-900 shadow-lg shadow-amber-500/20">
+              <Anchor size={20} strokeWidth={2.5} />
+            </div>
+            <div>
+              <span className="font-bold text-white tracking-wide text-sm block">
+                GrandLine TCG
+              </span>
+              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">
+                Join the Crew
+              </span>
             </div>
           </div>
+        </div>
+      </div>
 
-          <h1 className="text-slate-900 font-bold text-[18px] text-center">
-            Join the Crew
-          </h1>
-          <p className="text-[11px] text-gray-600 mb-4 text-center">
-            Create your account and start building
-          </p>
-          <form action="" onSubmit={handleSubmit}>
-            <AuthTextField
-              title="Username"
-              placeholder="PirateKing2024"
-              type="text"
-              icon={User}
-              value={username}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setUsername(e.target.value)
-              }
-            />
-            <AuthTextField
-              title="Email"
-              placeholder="captain@grandline.com"
-              type="email"
-              icon={Mail}
-              value={email}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-            />
-            <AuthTextField
-              title="Password"
-              placeholder="********"
-              type="password"
-              icon={Lock}
-              value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-            />
-            <AuthTextField
-              title="Confirm Password"
-              placeholder="********"
-              type="password"
-              icon={Lock}
-              value={confirmPassword}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setConfirmPassword(e.target.value)
-              }
-            />
+      {/* --- RIGHT SIDE: FORM --- */}
+      <div className="px-6 sm:w-[50%] w-full h-full flex flex-col justify-center items-center bg-slate-950 relative z-10">
+        {/* Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="max-w-md w-full animate-in fade-in slide-in-from-right-5 duration-700 relative z-20">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">
+              Begin Your Adventure
+            </h1>
+            <p className="text-slate-400 text-sm">
+              Create your captain profile and start building.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 backdrop-blur-sm shadow-xl space-y-4">
+              <AuthTextField
+                title="Username"
+                placeholder="PirateKing2024"
+                type="text"
+                icon={User}
+                value={username}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setUsername(e.target.value)
+                }
+              />
+              <AuthTextField
+                title="Email"
+                placeholder="captain@grandline.com"
+                type="email"
+                icon={Mail}
+                value={email}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <AuthTextField
+                  title="Password"
+                  placeholder="••••••••"
+                  type="password"
+                  icon={Lock}
+                  value={password}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
+                />
+                <AuthTextField
+                  title="Confirm"
+                  placeholder="••••••••"
+                  type="password"
+                  icon={Lock}
+                  value={confirmPassword}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setConfirmPassword(e.target.value)
+                  }
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-600 transition-colors text-slate-900 py-2 rounded-md mt-2 text-[12px] font-bold mb-4"
+              className="w-full bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-900 py-3.5 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 mt-4 group"
             >
-              Begin Adventure
+              Create Account
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <div className="text-[11px] text-gray-600 text-center">
+
+            <p className="text-center text-xs text-slate-500 mt-6">
               Already have an account?{" "}
-              <Link className="text-amber-400" href={"/login"}>
+              <Link
+                href="/login"
+                className="text-amber-500 hover:text-amber-400 font-bold hover:underline decoration-amber-500/30 underline-offset-4 transition-all"
+              >
                 Sign In
               </Link>
-            </div>
+            </p>
           </form>
         </div>
       </div>
+
+      {/* --- ALERTS --- */}
       {showAlert && (
-        <div className="fixed z-30 bottom-2 right-2 animate-right-slide-in">
+        <div className="fixed z-50 bottom-5 right-5 animate-in slide-in-from-right-5 duration-300">
           <AlertCard
             bgColor={alertAttribut.color}
             title={alertAttribut.title}

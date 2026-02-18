@@ -1,8 +1,15 @@
 "use client";
-import { Search, X } from "lucide-react";
+import {
+  Search,
+  X,
+  Filter,
+  ShoppingBag,
+  Wallet,
+  PackageOpen,
+  Loader2,
+} from "lucide-react";
 import React, { useState } from "react";
 import DropDown from "../ui/DropDown";
-import GlassLayer from "../ui/GlassLayer";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 
@@ -46,7 +53,6 @@ const InventoryClient = ({
 
   const [isShowCard, setIsShowCard] = useState(false);
   const [showCardUrl, setShowCardUrl] = useState("");
-
   const [selectedColor, setSelectedColor] = useState("");
 
   const [isShowSellDetailMarket, setIsShowSellDetailMarket] = useState(false);
@@ -59,15 +65,26 @@ const InventoryClient = ({
   const [unitPrice, setUnitPrice] = useState(0);
   const [userStoredDeckCard, setUserStoredDeckCard] = useState(0);
   const [userCard, setUserCard] = useState(0);
-
   const [loading, setLoading] = useState(false);
+
+  // --- Handlers ---
+  const openSellModal = (card: UserInventory, type: "market" | "system") => {
+    setSellDetailCard(card);
+    setUserStoredDeckCard(card.storedDeckQuantity);
+    setUserCard(card.quantity);
+    setQuantity(1); // Default quantity 1
+    setUnitPrice(0);
+
+    if (type === "market") setIsShowSellDetailMarket(true);
+    else setIsShowSellDetailSystem(true);
+  };
 
   const handleSellCard = async () => {
     if (quantity > userCard - userStoredDeckCard) {
       showAlertCard(
         "red",
-        "Card Quantity Invalid",
-        "U can't sell card that is stored in deck",
+        "Invalid Quantity",
+        "Cannot sell cards currently in decks",
       );
       return;
     }
@@ -87,14 +104,13 @@ const InventoryClient = ({
       const data = await response.json();
       if (!response.ok) {
         showAlertCard("red", "Error", data.message || "Sell card failed");
-        setIsShowSellDetailMarket(false);
       } else {
-        showAlertCard("green", "Success", "Sell card successful");
+        showAlertCard("green", "Success", "Card listed on marketplace");
         setIsShowSellDetailMarket(false);
         router.refresh();
       }
     } catch (error) {
-      showAlertCard("red", "Error", "Purchase failed");
+      showAlertCard("red", "Error", "Connection failed");
     } finally {
       setLoading(false);
     }
@@ -102,7 +118,7 @@ const InventoryClient = ({
 
   const handleSellCardSystem = async () => {
     if (quantity > userCard - userStoredDeckCard) {
-      showAlertCard("red", "Card Quantity Invalid", "Not enough card to sell");
+      showAlertCard("red", "Invalid Quantity", "Not enough available cards");
       return;
     }
     try {
@@ -120,304 +136,212 @@ const InventoryClient = ({
       const data = await response.json();
       if (!response.ok) {
         showAlertCard("red", "Error", data.message || "Sell card failed");
-        setIsShowSellDetailSystem(false);
       } else {
-        showAlertCard("green", "Success", "Sell card successful");
+        showAlertCard("green", "Sold!", "Card sold to system");
         setIsShowSellDetailSystem(false);
         router.refresh();
       }
     } catch (error) {
-      showAlertCard("red", "Error", "Purchase failed");
+      showAlertCard("red", "Error", "Connection failed");
     } finally {
       setLoading(false);
     }
   };
 
+  const filteredInventory = userInventory.filter(
+    (card) => card.color.includes(selectedColor) || selectedColor === "",
+  );
+
   return (
-    <div className="p-8">
-      {/* Inventory */}
-      <h1 className="text-[22px] font-bold">Inventory</h1>
-      <p className="text-[13px] text-gray-500 mb-5">
-        Manage your card collection
-      </p>
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-6 md:p-8">
+      {/* Header & Filters */}
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-800 pb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+              <PackageOpen className="w-8 h-8 text-amber-500" />
+              Inventory
+            </h1>
+            <p className="text-slate-400 mt-2">
+              Manage your collection. You have{" "}
+              <span className="text-amber-500 font-bold">
+                {filteredInventory.length}
+              </span>{" "}
+              cards displayed.
+            </p>
+          </div>
 
-      {/* Filter */}
-      <div className="flex items-center gap-2 mb-4">
-        {/* Search */}
-        <div className="border flex text-[11px] w-fit border-gray-400 p-1.5 rounded-md items-center gap-1.5 focus-within:border-amber-400">
-          <Search className="w-3 h-3" />
-          <input
-            className="outline-none"
-            type="text"
-            placeholder="Search cards..."
-          />
+          {/* Search & Filter Group */}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative group flex-1 md:w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2.5 border border-slate-700 rounded-xl leading-5 bg-slate-900 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all shadow-sm"
+                placeholder="Search cards..."
+              />
+            </div>
+
+            <div className="w-32 relative">
+              <div className="pl-2">
+                {" "}
+                {/* Wrapper to adjust padding if DropDown doesn't support className */}
+                <DropDown
+                  listItem={[
+                    "Red",
+                    "Green",
+                    "Blue",
+                    "Purple",
+                    "Yellow",
+                    "Black",
+                  ]}
+                  setSelectedColor={setSelectedColor}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Types */}
-        <div className="w-22">
-          <DropDown
-            listItem={["Red", "Green", "Blue", "Purple", "Yellow", "Black"]}
-            setSelectedColor={setSelectedColor}
-          />
-        </div>
-      </div>
-
-      {/* Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-        {userInventory.map((card, index) => {
-          return card.color.includes(selectedColor) || selectedColor === "" ? (
-            <div
-              key={index}
-              className="col-span-1 cursor-pointer bg-slate-900 p-2"
-            >
-              <div className="relative">
-                <img
+        {/* Grid Display */}
+        {filteredInventory.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <PackageOpen className="w-16 h-16 mb-4 opacity-20" />
+            <p>No cards found with these filters.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+            {filteredInventory.map((card, index) => (
+              <div
+                key={index}
+                className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
+              >
+                {/* Card Image Area */}
+                <div
+                  className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
                   onClick={() => {
                     setIsShowCard(true);
                     setShowCardUrl(card.cardImgUrl);
                   }}
-                  className="hover:scale-105 transition-transform duration-300"
-                  src={card.cardImgUrl}
-                ></img>
-                <div className="absolute bottom-0 right-0 bg-amber-600 w-5 h-5 flex items-center justify-center text-[12px] text-white p-1 rounded-full">
-                  {card.quantity}
+                >
+                  <img
+                    src={card.cardImgUrl}
+                    alt={card.cardName}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+
+                  {/* Floating Badges */}
+                  <div className="absolute top-2 right-2 bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                    x{card.quantity}
+                  </div>
+
+                  {card.storedDeckQuantity > 0 && (
+                    <div className="absolute top-2 left-2 bg-slate-800/90 backdrop-blur border border-slate-600 text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <PackageOpen className="w-3 h-3" />
+                      {card.storedDeckQuantity}
+                    </div>
+                  )}
+
+                  {/* Hover Overlay for Quick View */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                 </div>
-                <div className="absolute top-0 right-0 bg-slate-900  h-5 flex items-center justify-center text-[12px] text-white p-1 rounded-sm">
-                  {card.storedDeckQuantity} stored in deck
+
+                {/* Actions Footer */}
+                <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
+                  <h3 className="text-xs font-bold text-slate-300 truncate text-center">
+                    {card.cardName}
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => openSellModal(card, "market")}
+                      className="bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                      title="Sell to Marketplace"
+                    >
+                      <ShoppingBag className="w-3 h-3" />
+                      <span>Market</span>
+                    </button>
+                    <button
+                      onClick={() => openSellModal(card, "system")}
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                      title="Quick Sell to System"
+                    >
+                      <Wallet className="w-3 h-3" />
+                      <span>System</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setSellDetailCard(card);
-                  setIsShowSellDetailMarket(true);
-                  setUserStoredDeckCard(card.storedDeckQuantity);
-                  setUserCard(card.quantity);
-                }}
-                className="w-full bg-amber-400 text-[12px] p-1 rounded-md mt-2"
-              >
-                Sell This Card (Marketplace)
-              </button>
-              <button
-                onClick={() => {
-                  setSellDetailCard(card);
-                  setIsShowSellDetailSystem(true);
-                  setUserStoredDeckCard(card.storedDeckQuantity);
-                  setUserCard(card.quantity);
-                }}
-                className="w-full bg-amber-400 text-[12px] p-1 rounded-md mt-2"
-              >
-                Sell This Card (System)
-              </button>
-            </div>
-          ) : null;
-        })}
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* --- MODALS --- */}
+
+      {/* 1. Image Preview Modal */}
       {isShowCard && (
         <div
-          onClick={() => {
-            setIsShowCard(false);
-          }}
-          className="flex items-center z-9999 justify-center fixed inset-0 bg-black/80 "
+          onClick={() => setIsShowCard(false)}
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
         >
           <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            className="relative max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
           >
-            <img src={showCardUrl} alt="" />
+            <img
+              src={showCardUrl}
+              alt="Card Preview"
+              className="w-full rounded-2xl shadow-2xl border border-slate-700"
+            />
+            <button
+              onClick={() => setIsShowCard(false)}
+              className="absolute -top-12 right-0 text-white hover:text-amber-500 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
           </div>
         </div>
       )}
 
-      {/* Modal Sell Card (Marketplace) */}
+      {/* 2. Marketplace Sell Modal */}
       {isShowSellDetailMarket && sellDetailCard && (
-        <div
-          onClick={() => {
-            setIsShowSellDetailMarket(false);
-          }}
-          className="flex items-center justify-center fixed inset-0 z-50 bg-black/80"
-        >
-          <div
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <div className="bg-white p-3 w-full max-w-100 rounded-md mx-auto">
-              <div className="flex items-center text-[12px] justify-between">
-                <h3>Sell Card</h3>
-                <X
-                  onClick={() => {
-                    setIsShowSellDetailMarket(false);
-                  }}
-                  className="w-3 h-3"
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="w-20">
-                  <img
-                    src={sellDetailCard.cardImgUrl}
-                    className="w-full h-full"
-                    alt=""
-                  />
-                </div>
-                <div>
-                  <h1 className="text-[14px] font-bold">
-                    {sellDetailCard.cardName}
-                  </h1>
-                  <p className="text-[12px] text-gray-400">
-                    Quantity - {sellDetailCard.quantity}
-                  </p>
-                  <p className="text-[12px] text-gray-400">
-                    Stored in Deck - {sellDetailCard.storedDeckQuantity}
-                  </p>
-                </div>
-              </div>
-
-              {/* Transaction */}
-              <div className="w-full border border-amber-200 bg-amber-50 p-3 mt-2 rounded-md mb-2">
-                <h1 className="text-[12px] text-amber-400 mb-1">
-                  Transaction With Other Player
-                </h1>
-                <p className="text-[11px] text-gray-400 leading-3 mb-2">
-                  Please enter make sense price. This system relies on community
-                  trust.
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-full text-[12px]">
-                    <h1>Unit Price</h1>
-                    <input
-                      value={unitPrice}
-                      onChange={(e) => {
-                        setUnitPrice(Number(e.target.value));
-                      }}
-                      type="number"
-                      className="border bg-white rounded-sm w-full p-1 border-gray-400"
-                    />
-                  </div>
-                  <div className="w-full text-[12px]">
-                    <h1>Quantity</h1>
-                    <input
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(Number(e.target.value));
-                      }}
-                      type="number"
-                      className="border bg-white rounded-sm w-full p-1 border-gray-400"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end items-center text-[11px] gap-2">
-                <button
-                  onClick={() => {
-                    setIsShowSellDetailMarket(false);
-                  }}
-                  className="border p-1 px-2 rounded-md border-gray-300 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSellCard}
-                  className="border p-1 px-2 rounded-md border-gray-300 bg-amber-400 hover:bg-amber-500"
-                >
-                  {loading ? "Loading..." : "Sell Card"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SellModal
+          title="List on Marketplace"
+          subtitle="Set your price. Other players can buy this from you."
+          card={sellDetailCard}
+          onClose={() => setIsShowSellDetailMarket(false)}
+          onConfirm={handleSellCard}
+          loading={loading}
+          type="market"
+          quantity={quantity}
+          setQuantity={setQuantity}
+          unitPrice={unitPrice}
+          setUnitPrice={setUnitPrice}
+          maxQty={sellDetailCard.quantity - sellDetailCard.storedDeckQuantity}
+        />
       )}
+
+      {/* 3. System Sell Modal */}
       {isShowSellDetailSystem && sellDetailCard && (
-        <div
-          onClick={() => {
-            setIsShowSellDetailSystem(false);
-          }}
-          className="flex items-center justify-center fixed inset-0 z-50 bg-black/80"
-        >
-          <div
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <div className="bg-white p-3 w-full max-w-100 rounded-md mx-auto">
-              <div className="flex items-center text-[12px] justify-between">
-                <h3>Sell Card</h3>
-                <X
-                  onClick={() => {
-                    setIsShowSellDetailSystem(false);
-                  }}
-                  className="w-3 h-3"
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="w-20">
-                  <img
-                    src={sellDetailCard.cardImgUrl}
-                    className="w-full h-full"
-                    alt=""
-                  />
-                </div>
-                <div>
-                  <h1 className="text-[14px] font-bold">
-                    {sellDetailCard.cardName}
-                  </h1>
-                  <p className="text-[12px] text-gray-400">
-                    Quantity - {sellDetailCard.quantity}
-                  </p>
-                  <p className="text-[12px] text-gray-400">
-                    Stored in Deck - {sellDetailCard.storedDeckQuantity}
-                  </p>
-                </div>
-              </div>
-
-              {/* Transaction */}
-              <div className="w-full border border-amber-200 bg-amber-50 p-3 mt-2 rounded-md mb-2">
-                <h1 className="text-[12px] text-amber-400 mb-1">
-                  Transaction With System
-                </h1>
-                <p className="text-[11px] text-gray-400 leading-3 mb-2">
-                  You only get half price from purchase price
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-[50%] text-[12px]">
-                    <h1>Quantity</h1>
-                    <input
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(Number(e.target.value));
-                      }}
-                      type="number"
-                      className="border bg-white rounded-sm w-full p-1 border-gray-400"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end items-center text-[11px] gap-2">
-                <button
-                  onClick={() => {
-                    setIsShowSellDetailSystem(false);
-                  }}
-                  className="border p-1 px-2 rounded-md border-gray-300 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSellCardSystem}
-                  className="border p-1 px-2 rounded-md border-gray-300 bg-amber-400 hover:bg-amber-500"
-                >
-                  {loading ? "Loading..." : "Sell Card"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SellModal
+          title="Quick Sell to System"
+          subtitle="Sell instantly for 50% of base value."
+          card={sellDetailCard}
+          onClose={() => setIsShowSellDetailSystem(false)}
+          onConfirm={handleSellCardSystem}
+          loading={loading}
+          type="system"
+          quantity={quantity}
+          setQuantity={setQuantity}
+          maxQty={sellDetailCard.quantity - sellDetailCard.storedDeckQuantity}
+        />
       )}
+
+      {/* Alert Toast */}
       {showAlert && (
-        <div className="fixed z-9999 bottom-2 left-2 animate-left-slide-in">
+        <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
           <AlertCard
             bgColor={alertAttribut.color}
             title={alertAttribut.title}
@@ -425,7 +349,147 @@ const InventoryClient = ({
           />
         </div>
       )}
-      {loading ? <GlassLayer /> : <></>}
+    </div>
+  );
+};
+
+// --- Reusable Sell Modal Component ---
+const SellModal = ({
+  title,
+  subtitle,
+  card,
+  onClose,
+  onConfirm,
+  loading,
+  type,
+  quantity,
+  setQuantity,
+  unitPrice,
+  setUnitPrice,
+  maxQty,
+}: any) => {
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
+    >
+      <div
+        className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="p-5 border-b border-slate-800 flex justify-between items-start">
+          <div>
+            <h3 className="text-lg font-bold text-white">{title}</h3>
+            <p className="text-xs text-slate-400 mt-1">{subtitle}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-500 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Card Info */}
+          <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <img
+              src={card.cardImgUrl}
+              className="w-16 h-auto rounded-md"
+              alt=""
+            />
+            <div>
+              <h4 className="font-bold text-slate-200">{card.cardName}</h4>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">
+                  Total: {card.quantity}
+                </span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">
+                  Available: {maxQty}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Inputs */}
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-400 uppercase">
+                Quantity to Sell
+              </label>
+              <input
+                type="number"
+                min="1"
+                max={maxQty}
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all"
+              />
+              {quantity > maxQty && (
+                <p className="text-xs text-red-500 mt-1">
+                  Cannot sell more than available amount ({maxQty}).
+                </p>
+              )}
+            </div>
+
+            {type === "market" && (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-400 uppercase">
+                  Unit Price (¥)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={unitPrice}
+                  onChange={(e) => setUnitPrice(Number(e.target.value))}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all"
+                  placeholder="0"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Summary Box */}
+          {type === "market" ? (
+            <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
+              <p className="text-xs text-amber-500 text-center">
+                Total listing value:{" "}
+                <span className="font-bold font-mono">
+                  ¥ {(quantity * unitPrice).toLocaleString()}
+                </span>
+              </p>
+            </div>
+          ) : (
+            <div className="bg-slate-800 p-3 rounded-lg text-center">
+              <p className="text-xs text-slate-400">
+                System buys at 50% value.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading || quantity <= 0 || quantity > maxQty}
+            className="flex-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Confirm Sell"
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

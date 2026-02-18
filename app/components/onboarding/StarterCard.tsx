@@ -1,5 +1,6 @@
 import { StarterDeckDetailProps } from "@/app/types/Card";
 import React from "react";
+
 interface AllSTProps {
   id: string;
   cards: StarterDeckDetailProps[];
@@ -23,29 +24,75 @@ const StarterCard = ({
   setSelectedCard,
   setSelectedCardList,
 }: StarterCardProps) => {
+  const isSelected = selectedCard === index;
+
   return (
     <div
-      className={`col-span-1 ${selectedCard === index ? "scale-110" : "scale-100"} transition-transform duration-300`}
+      onClick={() => {
+        setSelectedCard(index);
+        setSelectedCardList(e.cards);
+      }}
+      className={`
+        relative col-span-1 group rounded-xl p-3 cursor-pointer transition-all duration-300 border
+        ${
+          isSelected
+            ? "bg-slate-900 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)] scale-105 -translate-y-1"
+            : "bg-slate-900/50 border-slate-800 hover:border-slate-600 hover:bg-slate-800"
+        }
+      `}
     >
-      <img
-        onClick={() => {
-          setImageClickedUrl(e.cards[0].img_full_url);
-          setImageClicked(true);
-        }}
-        className="hover:rotate-3 transition-transform duration-300 ease-in-out cursor-pointer"
-        src={e.cards[0].img_full_url}
-      ></img>
-      <p className="text-[10px] font-bold">{e.id}</p>
-      <p className="text-[12px] font-bold mb-1">{e.cards[0].name}</p>
-      <button
-        onClick={() => {
-          setSelectedCard(index);
-          setSelectedCardList(e.cards);
-        }}
-        className={`cursor-pointer w-full text-[12px] font-medium py-1 rounded-md ${selectedCard === index ? "bg-amber-400" : "bg-slate-800 text-white "}`}
+      {/* Label ID Deck (Top Left) */}
+      <div
+        className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider
+        ${isSelected ? "bg-amber-400 text-slate-900" : "bg-slate-950/80 text-slate-400 backdrop-blur-sm"}
+      `}
       >
-        {selectedCard === index ? "Selected" : "Select"}
-      </button>
+        {e.id}
+      </div>
+
+      {/* Image Container */}
+      <div className="relative overflow-hidden rounded-lg mb-3 aspect-2/3">
+        <img
+          onClick={(ev) => {
+            ev.stopPropagation(); // Mencegah trigger select saat ingin zoom
+            setImageClickedUrl(e.cards[0].img_full_url);
+            setImageClicked(true);
+          }}
+          className={`w-full h-full object-cover transition-transform duration-500 ease-in-out cursor-zoom-in
+            ${isSelected ? "scale-110" : "group-hover:scale-110 grayscale-30% group-hover:grayscale-0"}
+          `}
+          src={e.cards[0].img_full_url}
+          alt={e.cards[0].name}
+          loading="lazy"
+        />
+        {/* Shine Effect Overlay */}
+        {isSelected && (
+          <div className="absolute inset-0 bg-linear-to-tr from-amber-500/10 to-transparent pointer-events-none" />
+        )}
+      </div>
+
+      {/* Card Info */}
+      <div className="text-center space-y-2">
+        <h3
+          className={`text-[11px] md:text-xs font-bold truncate px-1 transition-colors ${isSelected ? "text-amber-400" : "text-slate-300"}`}
+        >
+          {e.cards[0].name}
+        </h3>
+
+        {/* Selection Indicator / Button */}
+        <div
+          className={`
+          w-full py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all duration-300
+          ${
+            isSelected
+              ? "bg-amber-400 text-slate-900 shadow-lg shadow-amber-400/20"
+              : "bg-slate-800 text-slate-500 group-hover:bg-slate-700 group-hover:text-slate-300"
+          }
+        `}
+        >
+          {isSelected ? "Selected" : "Select"}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,18 @@
 "use client";
 import { CardDetailProps } from "@/app/types/Card";
-import { Search, ShoppingBag, Users, X } from "lucide-react";
+import {
+  Search,
+  ShoppingBag,
+  Users,
+  X,
+  Store,
+  Tag,
+  Loader2,
+  Info,
+} from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Virtuoso } from "react-virtuoso";
 import AlertCard from "../ui/AlertCard";
-import GlassLayer from "../ui/GlassLayer";
 import { Marketplace } from "@/app/types/Marketplace";
 import { useRouter } from "next/navigation";
 
@@ -35,16 +43,10 @@ const MarketPlaceClient = ({
   };
 
   const [searchValue, setSearchValue] = useState("");
-  useEffect(() => {
-    setIsShowCard(false);
-    setIsShowDetailPurchase(false);
-  }, []);
-
   const [shopIndex, setShopIndex] = useState(0);
-
-  // Initialize with a safe default, will update on mount
   const [ITEMS_PER_ROW, setITEMS_PER_ROW] = useState(3);
 
+  // --- RESIZE LOGIC ---
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -59,11 +61,12 @@ const MarketPlaceClient = ({
       }
     };
 
-    handleResize(); // Set initial value correctly
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // --- FILTER LOGIC ---
   const filteredData = useMemo(() => {
     if (!searchValue) return data;
     const lowerSearch = searchValue.toLowerCase();
@@ -84,6 +87,7 @@ const MarketPlaceClient = ({
     );
   }, [marketplaceData, searchValue]);
 
+  // --- ROW GENERATION FOR VIRTUOSO ---
   const rows = useMemo(() => {
     const result = [];
     for (let i = 0; i < filteredData.length; i += ITEMS_PER_ROW) {
@@ -100,28 +104,38 @@ const MarketPlaceClient = ({
     return result;
   }, [filteredMarketplaceData, ITEMS_PER_ROW]);
 
+  // --- STATES ---
   const [isShowCard, setIsShowCard] = useState(false);
   const [showCardUrl, setShowCardUrl] = useState("");
 
-  const [isShowDetailPurchase, setIsShowDetailPurchase] = useState(true);
+  const [isShowDetailPurchase, setIsShowDetailPurchase] = useState(false);
   const [ShowDetailPurchase, setShowDetailPurchase] =
     useState<CardDetailProps | null>(null);
 
   const [isShowDetailMarketplacePurchase, setIsShowDetailMarketplacePurchase] =
-    useState(true);
+    useState(false);
   const [ShowDetailMarketplacePurchase, setShowDetailMarketplacePurchase] =
     useState<Marketplace | null>(null);
 
   const [unitPrice, setUnitPrice] = useState(0);
   const [quantity, setQuantity] = useState(0);
-
   const [loading, setLoading] = useState(false);
 
-  // ... (handleBuyCard and handleBuyMarketplaceCard functions remain unchanged)
+  // --- ACTIONS ---
+  const openSystemBuyModal = (card: CardDetailProps) => {
+    setShowDetailPurchase(card);
+    setUnitPrice(0); // Reset or set default
+    setQuantity(1);
+    setIsShowDetailPurchase(true);
+  };
+
+  const openUserBuyModal = (marketItem: Marketplace) => {
+    setShowDetailMarketplacePurchase(marketItem);
+    setIsShowDetailMarketplacePurchase(true);
+  };
+
   const handleBuyCard = async () => {
-    if (quantity <= 0) {
-      return;
-    }
+    if (quantity <= 0) return;
     try {
       setLoading(true);
       const response = await fetch("api/user-inventory", {
@@ -142,7 +156,6 @@ const MarketPlaceClient = ({
       const data = await response.json();
       if (!response.ok) {
         showAlertCard("red", "Error", data.message || "Purchase failed");
-        setIsShowDetailPurchase(false);
       } else {
         showAlertCard("green", "Success", "Purchase successful");
         setIsShowDetailPurchase(false);
@@ -176,11 +189,10 @@ const MarketPlaceClient = ({
       const data = await response.json();
       if (!response.ok) {
         showAlertCard("red", "Error", data.message || "Purchase failed");
-        setIsShowDetailMarketplacePurchase(false);
       } else {
         showAlertCard("green", "Success", data.body);
-        router.refresh();
         setIsShowDetailMarketplacePurchase(false);
+        router.refresh();
       }
     } catch (error) {
       showAlertCard("red", "Error", "Purchase failed");
@@ -190,51 +202,68 @@ const MarketPlaceClient = ({
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden p-8 gap-5">
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-200">
       {/* --- HEADER --- */}
-      <div className="flex-none">
-        <h1 className="text-[22px] font-bold">Marketplace</h1>
-        <p className="text-[13px] text-gray-500 ">
-          Buy and sell cards with the community
-        </p>
+      <div className="flex-none p-6 md:p-8 space-y-6 border-b border-slate-800">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
+              <Store className="w-8 h-8 text-amber-500" />
+              Marketplace
+            </h1>
+            <p className="text-slate-400 mt-2 text-sm">
+              Acquire new cards from the system or trade with other captains.
+            </p>
+          </div>
 
-        {/* Search */}
-        <div className="flex my-3 items-center text-[11px] gap-2 border focus-within:border-amber-400 border-gray-400 p-1.5 rounded-md w-80 bg-white">
-          <Search className="w-3 h-3" />
-          <input
-            value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value);
-            }}
-            className="outline-none w-full"
-            type="text"
-            placeholder="Search cards"
-          />
+          {/* Tab Switcher */}
+          <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
+            <button
+              onClick={() => setShopIndex(0)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                shopIndex === 0
+                  ? "bg-amber-500 text-slate-900 shadow-lg"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              <ShoppingBag className="w-4 h-4" />
+              System Shop
+            </button>
+            <button
+              onClick={() => setShopIndex(1)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                shopIndex === 1
+                  ? "bg-amber-500 text-slate-900 shadow-lg"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              User Market
+            </button>
+          </div>
         </div>
 
-        {/* Navigation */}
-        <div className="bg-gray-300 p-1 rounded-md w-fit flex gap-1">
-          <div
-            onClick={() => setShopIndex(0)}
-            className={`cursor-pointer rounded-md gap-1 py-1 px-1.5 flex items-center text-[11px] ${shopIndex === 0 ? "bg-white shadow-sm" : "text-gray-500"}`}
-          >
-            <ShoppingBag className="w-3 h-3" /> System Shop
-          </div>
-          <div
-            onClick={() => setShopIndex(1)}
-            className={`cursor-pointer rounded-md gap-1 py-1 px-1.5 flex items-center text-[11px] ${shopIndex === 1 ? "bg-white shadow-sm" : "text-gray-500"}`}
-          >
-            <Users className="w-3 h-3" /> User Marketplace
-          </div>
+        {/* Search Bar */}
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+          <input
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            type="text"
+            placeholder="Search for cards by name or ID..."
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+          />
         </div>
       </div>
 
       {/* --- LIST SECTION (Virtuoso) --- */}
-      {shopIndex === 0 && (
-        <div className="flex-1  rounded-lg bg-gray-50 pb-1">
+      <div className="flex-1 bg-slate-950 p-4">
+        {/* SYSTEM SHOP VIEW */}
+        {shopIndex === 0 && (
           <Virtuoso
             style={{ height: "100%" }}
             totalCount={rows.length}
+            className="custom-scrollbar"
             itemContent={(index) => {
               const rowItems = rows[index];
               const emptySlots = Math.max(0, ITEMS_PER_ROW - rowItems.length);
@@ -249,46 +278,58 @@ const MarketPlaceClient = ({
                   {rowItems.map((card) => (
                     <div
                       key={card.id}
-                      className="flex-1 col-span-1 w-full border rounded-lg p-2 bg-white shadow-sm hover:shadow-md transition-shadow"
+                      className="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all flex flex-col"
                     >
-                      <div className="relative h-62.5 w-full bg-gray-50 mb-2 rounded flex items-center justify-center overflow-hidden">
-                        {card.img_full_url && card.img_full_url !== "" ? (
+                      {/* Image */}
+                      <div
+                        className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
+                        onClick={() => {
+                          setIsShowCard(true);
+                          setShowCardUrl(card.img_full_url);
+                        }}
+                      >
+                        {card.img_full_url ? (
                           <img
                             src={card.img_full_url}
                             alt={card.name}
-                            className="object-contain w-full h-full cursor-zoom-in"
                             loading="lazy"
-                            onClick={() => {
-                              setIsShowCard(true);
-                              setShowCardUrl(card.img_full_url);
-                            }}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
-                            <span className="text-[10px]">No Image</span>
+                          <div className="flex items-center justify-center h-full text-slate-600 text-xs">
+                            No Image
                           </div>
                         )}
+                        {/* Quick Badge */}
+                        <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur text-[10px] text-slate-300 px-2 py-0.5 rounded border border-slate-700">
+                          {card.id}
+                        </div>
                       </div>
-                      <p className="text-xs font-bold truncate px-1">
-                        {card.name}
-                      </p>
-                      <p className="text-[10px] text-gray-500 px-1">
-                        {card.id}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setIsShowDetailPurchase(true);
-                          setShowDetailPurchase(card);
-                        }}
-                        className="bg-amber-400 w-full text-[12px] p-2 rounded-md mt-2"
-                      >
-                        Buy
-                      </button>
+
+                      {/* Content */}
+                      <div className="p-3 flex flex-col flex-1 gap-2">
+                        <div>
+                          <h3
+                            className="text-sm font-bold text-white truncate"
+                            title={card.name}
+                          >
+                            {card.name}
+                          </h3>
+                          <p className="text-[11px] text-slate-500">
+                            {card.category}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => openSystemBuyModal(card)}
+                          className="mt-auto w-full bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          <ShoppingBag className="w-3 h-3" />
+                          Buy Card
+                        </button>
+                      </div>
                     </div>
                   ))}
-
-                  {/* Spacer Kosong (Agar baris terakhir rata kiri) */}
-                  {/* SAFE ARRAY GENERATION */}
                   {[...Array(emptySlots)].map((_, i) => (
                     <div key={`empty-${i}`} className="flex-1" />
                   ))}
@@ -296,15 +337,14 @@ const MarketPlaceClient = ({
               );
             }}
           />
-        </div>
-      )}
+        )}
 
-      {/* User Marketplace */}
-      {shopIndex === 1 && (
-        <div className="flex-1  rounded-lg bg-gray-50 pb-1">
+        {/* USER MARKETPLACE VIEW */}
+        {shopIndex === 1 && (
           <Virtuoso
             style={{ height: "100%" }}
             totalCount={rowsMarketplace.length}
+            className="custom-scrollbar"
             itemContent={(index) => {
               const rowItems = rowsMarketplace[index];
               const emptySlots = Math.max(0, ITEMS_PER_ROW - rowItems.length);
@@ -316,53 +356,57 @@ const MarketPlaceClient = ({
                     gridTemplateColumns: `repeat(${ITEMS_PER_ROW}, minmax(0, 1fr))`,
                   }}
                 >
-                  {rowItems.map((card) => (
+                  {rowItems.map((marketItem) => (
                     <div
-                      key={card.id}
-                      className="flex-1 col-span-1 w-full border rounded-lg p-2 bg-white shadow-sm hover:shadow-md transition-shadow"
+                      key={marketItem.id}
+                      className="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all flex flex-col"
                     >
-                      <div className="relative h-62.5 w-full bg-gray-50 mb-2 rounded flex items-center justify-center overflow-hidden">
-                        {card.inventory.cardImgUrl &&
-                        card.inventory.cardImgUrl !== "" ? (
-                          <img
-                            src={card.inventory.cardImgUrl}
-                            alt={card.inventory.cardName}
-                            className="object-contain w-full h-full cursor-zoom-in"
-                            loading="lazy"
-                            onClick={() => {
-                              setIsShowCard(true);
-                              setShowCardUrl(card.inventory.cardImgUrl);
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
-                            <span className="text-[10px]">No Image</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs font-bold truncate px-1">
-                        {card.inventory.cardName}
-                      </p>
-                      <p className="text-[10px] text-gray-500 px-1">
-                        {card.inventory.cardId}
-                      </p>
-                      <p className="text-[10px] text-gray-500 px-1">
-                        Price: {card.price}
-                      </p>
-                      <button
+                      {/* Image */}
+                      <div
+                        className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
                         onClick={() => {
-                          setIsShowDetailMarketplacePurchase(true);
-                          setShowDetailMarketplacePurchase(card);
+                          setIsShowCard(true);
+                          setShowCardUrl(marketItem.inventory.cardImgUrl);
                         }}
-                        className="bg-amber-400 w-full text-[12px] p-2 rounded-md mt-2"
                       >
-                        Buy
-                      </button>
+                        <img
+                          src={marketItem.inventory.cardImgUrl}
+                          alt={marketItem.inventory.cardName}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+
+                        {/* Price Tag */}
+                        <div className="absolute bottom-0 right-0 bg-amber-500 text-slate-900 px-2 py-1 rounded-tl-lg font-bold text-xs flex items-center gap-1">
+                          <Tag className="w-3 h-3" />
+                          {marketItem.price.toLocaleString()}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-3 flex flex-col flex-1 gap-2">
+                        <div>
+                          <h3 className="text-sm font-bold text-white truncate">
+                            {marketItem.inventory.cardName}
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Seller:{" "}
+                            <span className="text-amber-500">
+                              {marketItem.sellerId.substring(0, 8)}...
+                            </span>
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => openUserBuyModal(marketItem)}
+                          className="mt-auto w-full bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          <Users className="w-3 h-3" />
+                          Buy from User
+                        </button>
+                      </div>
                     </div>
                   ))}
-
-                  {/* Spacer Kosong (Agar baris terakhir rata kiri) */}
-                  {/* SAFE ARRAY GENERATION */}
                   {[...Array(emptySlots)].map((_, i) => (
                     <div key={`empty-${i}`} className="flex-1" />
                   ))}
@@ -370,191 +414,244 @@ const MarketPlaceClient = ({
               );
             }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* ... (Modals and loading overlay remain unchanged) */}
+      {/* --- MODALS --- */}
+
+      {/* 1. Image Preview */}
       {isShowCard && (
         <div
-          onClick={() => {
-            setIsShowCard(false);
-          }}
-          className="flex items-center z-9999 justify-center fixed inset-0 bg-black/80 "
+          onClick={() => setIsShowCard(false)}
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
         >
           <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            className="relative max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
           >
-            <img src={showCardUrl} alt="" />
+            <img
+              src={showCardUrl}
+              alt="Preview"
+              className="w-full rounded-2xl shadow-2xl border border-slate-700"
+            />
+            <button
+              onClick={() => setIsShowCard(false)}
+              className="absolute -top-12 right-0 text-white hover:text-amber-500"
+            >
+              <X className="w-8 h-8" />
+            </button>
           </div>
         </div>
       )}
 
+      {/* 2. System Purchase Modal */}
       {isShowDetailPurchase && ShowDetailPurchase && (
         <div
-          onClick={() => {
-            setIsShowDetailPurchase(false);
-          }}
-          className="flex items-center justify-center z-9999 fixed inset-0 bg-black/80 "
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
+          onClick={() => setIsShowDetailPurchase(false)}
         >
           <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
           >
-            <div className="bg-white p-3 w-100 rounded-md">
-              <div className="flex items-center text-[12px] justify-between">
-                <h3>Purchase Card</h3>
-                <X
-                  onClick={() => {
-                    setIsShowDetailPurchase(false);
-                  }}
-                  className="w-3 h-3"
-                />
+            <div className="p-5 border-b border-slate-800 flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-bold text-white">System Shop</h3>
+                <p className="text-xs text-slate-400">
+                  Buy cards directly from the game.
+                </p>
               </div>
-              <div className="flex gap-4">
-                <div className="w-20">
-                  <img
-                    src={ShowDetailPurchase.img_full_url}
-                    className="w-full h-full"
-                    alt=""
-                  />
-                </div>
+              <button
+                onClick={() => setIsShowDetailPurchase(false)}
+                className="text-slate-500 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Card Info */}
+              <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+                <img
+                  src={ShowDetailPurchase.img_full_url}
+                  className="w-16 h-auto rounded-md"
+                  alt=""
+                />
                 <div>
-                  <h1 className="text-[14px] font-bold">
+                  <h4 className="font-bold text-slate-200">
                     {ShowDetailPurchase.name}
-                  </h1>
-                  <p className="text-[12px] text-gray-400">
+                  </h4>
+                  <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded mt-1 inline-block">
                     {ShowDetailPurchase.category}
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg flex gap-3 items-start">
+                <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <h5 className="text-xs font-bold text-amber-500">
+                    Honesty-Based System
+                  </h5>
+                  <p className="text-[11px] text-amber-500/80 leading-relaxed">
+                    Since this is a manual shop simulation, please enter the
+                    price agreed upon by the community rules.
                   </p>
                 </div>
               </div>
 
-              {/* Honest Transaction */}
-              <div className="w-full border border-amber-200 bg-amber-50 p-3 mt-2 rounded-md mb-2">
-                <h1 className="text-[12px] text-amber-400 mb-1">
-                  Honesty-Based Transaction
-                </h1>
-                <p className="text-[11px] text-gray-400 leading-3 mb-2">
-                  Please enter the agreed price and quantity. This system relies
-                  on community trust.
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-full text-[12px]">
-                    <h1>Unit Price</h1>
-                    <input
-                      value={unitPrice}
-                      onChange={(e) => {
-                        setUnitPrice(Number(e.target.value));
-                      }}
-                      type="number"
-                      className="border bg-white rounded-sm w-full p-1 border-gray-400"
-                    />
-                  </div>
-                  <div className="w-full text-[12px]">
-                    <h1>Quantity</h1>
-                    <input
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(Number(e.target.value));
-                      }}
-                      type="number"
-                      className="border bg-white rounded-sm w-full p-1 border-gray-400"
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-400 uppercase">
+                    Unit Price
+                  </label>
+                  <input
+                    type="number"
+                    value={unitPrice}
+                    onChange={(e) => setUnitPrice(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-500 focus:outline-none"
+                  />
                 </div>
-                <div className="border-b w-full my-2 border-gray-400"></div>
-                <div className="flex justify-between items-center text-[12px]">
-                  <p>Total</p>
-                  <p className="text-amber-500">{unitPrice * quantity}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-400 uppercase">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-500 focus:outline-none"
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end items-center text-[11px] gap-2">
-                <button
-                  onClick={() => {
-                    setIsShowDetailPurchase(false);
-                  }}
-                  className="border p-1 px-2 rounded-md border-gray-300 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleBuyCard}
-                  className="border p-1 px-2 rounded-md border-gray-300 bg-amber-400 hover:bg-amber-500"
-                >
-                  {loading ? "Loading..." : "Confirm Purchase"}
-                </button>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-800">
+                <span className="text-sm text-slate-400">Total Cost:</span>
+                <span className="text-xl font-bold text-amber-500">
+                  ¥ {(unitPrice * quantity).toLocaleString()}
+                </span>
               </div>
+            </div>
+
+            <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
+              <button
+                onClick={() => setIsShowDetailPurchase(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBuyCard}
+                disabled={loading}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 flex justify-center items-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Confirm Purchase"
+                )}
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* 3. Marketplace Purchase Modal */}
       {isShowDetailMarketplacePurchase && ShowDetailMarketplacePurchase && (
         <div
-          onClick={() => {
-            setIsShowDetailMarketplacePurchase(false);
-          }}
-          className="flex items-center justify-center z-9999 fixed inset-0 bg-black/80 "
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
+          onClick={() => setIsShowDetailMarketplacePurchase(false)}
         >
           <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
           >
-            <div className="bg-white p-3 w-100 rounded-md">
-              <div className="flex items-center text-[12px] justify-between">
-                <h3>Purchase Card</h3>
-                <X
-                  onClick={() => {
-                    setIsShowDetailMarketplacePurchase(false);
-                  }}
-                  className="w-3 h-3"
-                />
+            <div className="p-5 border-b border-slate-800 flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-bold text-white">
+                  Buy from Player
+                </h3>
+                <p className="text-xs text-slate-400">
+                  You are buying a single card listing.
+                </p>
               </div>
-              <div className="flex gap-4">
-                <div className="w-20">
-                  <img
-                    src={ShowDetailMarketplacePurchase.inventory.cardImgUrl}
-                    className="w-full h-full"
-                    alt=""
-                  />
-                </div>
+              <button
+                onClick={() => setIsShowDetailMarketplacePurchase(false)}
+                className="text-slate-500 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Card Info */}
+              <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+                <img
+                  src={ShowDetailMarketplacePurchase.inventory.cardImgUrl}
+                  className="w-16 h-auto rounded-md"
+                  alt=""
+                />
                 <div>
-                  <h1 className="text-[14px] font-bold">
+                  <h4 className="font-bold text-slate-200">
                     {ShowDetailMarketplacePurchase.inventory.cardName}
-                  </h1>
-                  <p className="text-[12px] text-gray-400">
-                    Price: {ShowDetailMarketplacePurchase.price}
-                  </p>
+                  </h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">
+                      ID: {ShowDetailMarketplacePurchase.inventory.cardId}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end items-center text-[11px] gap-2">
-                <button
-                  onClick={() => {
-                    setIsShowDetailMarketplacePurchase(false);
-                  }}
-                  className="border p-1 px-2 rounded-md border-gray-300 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleBuyMarketplaceCard}
-                  className="border p-1 px-2 rounded-md border-gray-300 bg-amber-400 hover:bg-amber-500"
-                >
-                  {loading ? "Loading..." : "Confirm Purchase"}
-                </button>
+              {/* Price Info */}
+              <div className="bg-slate-800 p-4 rounded-xl flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-slate-400">Price per unit</p>
+                  <p className="text-2xl font-bold text-white">
+                    ¥ {ShowDetailMarketplacePurchase.price.toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-slate-400">Quantity</p>
+                  <p className="text-lg font-bold text-amber-500">x1</p>
+                </div>
               </div>
+
+              <p className="text-xs text-center text-slate-500">
+                By confirming, you will transfer{" "}
+                <span className="text-white">
+                  ¥ {ShowDetailMarketplacePurchase.price.toLocaleString()}
+                </span>{" "}
+                to the seller.
+              </p>
+            </div>
+
+            <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
+              <button
+                onClick={() => setIsShowDetailMarketplacePurchase(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBuyMarketplaceCard}
+                disabled={loading}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 flex justify-center items-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Confirm Purchase"
+                )}
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* --- ALERTS & OVERLAYS --- */}
       {showAlert && (
-        <div className="absolute z-9999 bottom-2 left-2 animate-left-slide-in">
+        <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
           <AlertCard
             bgColor={alertAttribut.color}
             title={alertAttribut.title}
@@ -562,7 +659,16 @@ const MarketPlaceClient = ({
           />
         </div>
       )}
-      {loading ? <GlassLayer /> : <></>}
+      {loading && (
+        <div className="fixed inset-0 bg-black/80 z-120 flex items-center justify-center backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+            <span className="text-white font-semibold">
+              Processing Transaction...
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
