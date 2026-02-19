@@ -51,7 +51,7 @@ const StarterCard = ({
       </div>
 
       {/* Image Container */}
-      <div className="relative overflow-hidden rounded-lg mb-3 aspect-2/3">
+      <div className="relative  rounded-lg mb-3 aspect-2/3">
         <img
           onClick={(ev) => {
             ev.stopPropagation(); // Mencegah trigger select saat ingin zoom
@@ -59,7 +59,7 @@ const StarterCard = ({
             setImageClicked(true);
           }}
           className={`w-full h-full object-cover transition-transform duration-500 ease-in-out cursor-zoom-in
-            ${isSelected ? "scale-110" : "group-hover:scale-110 grayscale-30% group-hover:grayscale-0"}
+            ${isSelected ? "scale-110" : "group-hover:rotate-6 grayscale-30% group-hover:grayscale-0"}
           `}
           src={e.cards[0].img_full_url}
           alt={e.cards[0].name}

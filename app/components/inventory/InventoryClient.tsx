@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import DropDown from "../ui/DropDown";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
+import { Tooltip } from "@heroui/tooltip";
 
 interface UserInventory {
   id: string;
@@ -232,14 +233,36 @@ const InventoryClient = ({
                   />
 
                   {/* Floating Badges */}
-                  <div className="absolute top-2 right-2 bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
-                    x{card.quantity}
+                  <div className="absolute top-2 right-2 z-10">
+                    <Tooltip
+                      content={
+                        <span className="text-white text-xs font-medium">
+                          Total quantity cards
+                        </span>
+                      }
+                      showArrow={true}
+                    >
+                      <div className=" bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                        x{card.quantity}
+                      </div>
+                    </Tooltip>
                   </div>
 
                   {card.storedDeckQuantity > 0 && (
-                    <div className="absolute top-2 left-2 bg-slate-800/90 backdrop-blur border border-slate-600 text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <PackageOpen className="w-3 h-3" />
-                      {card.storedDeckQuantity}
+                    <div className="absolute top-2 left-2 z-10">
+                      <Tooltip
+                        content={
+                          <span className="text-white text-xs font-medium">
+                            Stored in deck quantity
+                          </span>
+                        }
+                        showArrow={true}
+                      >
+                        <div className="bg-slate-800/90 backdrop-blur border border-slate-600 text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 cursor-help">
+                          <PackageOpen className="w-3 h-3" />
+                          {card.storedDeckQuantity}
+                        </div>
+                      </Tooltip>
                     </div>
                   )}
 

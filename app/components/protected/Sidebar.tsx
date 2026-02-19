@@ -108,10 +108,6 @@ export default function Sidebar() {
               <span>Logout</span>
             </button>
           </div>
-
-          <div className="mt-4 text-[10px] text-center text-slate-600 font-medium">
-            v1.0.0 &bull; One Piece TCG
-          </div>
         </div>
       </div>
 
