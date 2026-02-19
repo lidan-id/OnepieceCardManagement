@@ -136,7 +136,12 @@ const DashboardClient = ({
               <p className="text-slate-500 text-lg">
                 You don't have any decks yet.
               </p>
-              <button className="mt-4 text-amber-500 hover:text-amber-400 font-bold">
+              <button
+                onClick={() => {
+                  router.push("/deck-builder/create-new");
+                }}
+                className="mt-4 text-amber-500 hover:text-amber-400 font-bold"
+              >
                 Create one now
               </button>
             </div>

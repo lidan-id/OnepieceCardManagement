@@ -15,6 +15,7 @@ import { Virtuoso } from "react-virtuoso";
 import AlertCard from "../ui/AlertCard";
 import { Marketplace } from "@/app/types/Marketplace";
 import { useRouter } from "next/navigation";
+import { decodeHTMLEntities } from "@/app/helper/helper";
 
 const MarketPlaceClient = ({
   userData,
@@ -72,7 +73,7 @@ const MarketPlaceClient = ({
     const lowerSearch = searchValue.toLowerCase();
     return data.filter(
       (card) =>
-        card.name.toLowerCase().includes(lowerSearch) ||
+        decodeHTMLEntities(card.name).toLowerCase().includes(lowerSearch) ||
         card.id.toLowerCase().includes(lowerSearch),
     );
   }, [data, searchValue]);
@@ -80,9 +81,12 @@ const MarketPlaceClient = ({
   const filteredMarketplaceData = useMemo(() => {
     if (!searchValue) return marketplaceData;
     const lowerSearch = searchValue.toLowerCase();
+    console.log(marketplaceData);
     return marketplaceData.filter(
       (card) =>
-        card.inventory.cardName.toLowerCase().includes(lowerSearch) ||
+        decodeHTMLEntities(card.inventory.cardName)
+          .toLowerCase()
+          .includes(lowerSearch) ||
         card.inventory.cardId.toLowerCase().includes(lowerSearch),
     );
   }, [marketplaceData, searchValue]);
@@ -291,7 +295,7 @@ const MarketPlaceClient = ({
                         {card.img_full_url ? (
                           <img
                             src={card.img_full_url}
-                            alt={card.name}
+                            alt={decodeHTMLEntities(card.name)}
                             loading="lazy"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
@@ -311,9 +315,9 @@ const MarketPlaceClient = ({
                         <div>
                           <h3
                             className="text-sm font-bold text-white truncate"
-                            title={card.name}
+                            title={decodeHTMLEntities(card.name)}
                           >
-                            {card.name}
+                            {decodeHTMLEntities(card.name)}
                           </h3>
                           <p className="text-[11px] text-slate-500">
                             {card.category}
@@ -371,7 +375,9 @@ const MarketPlaceClient = ({
                       >
                         <img
                           src={marketItem.inventory.cardImgUrl}
-                          alt={marketItem.inventory.cardName}
+                          alt={decodeHTMLEntities(
+                            marketItem.inventory.cardName,
+                          )}
                           loading="lazy"
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
@@ -387,7 +393,7 @@ const MarketPlaceClient = ({
                       <div className="p-3 flex flex-col flex-1 gap-2">
                         <div>
                           <h3 className="text-sm font-bold text-white truncate">
-                            {marketItem.inventory.cardName}
+                            {decodeHTMLEntities(marketItem.inventory.cardName)}
                           </h3>
                           <p className="text-[10px] text-slate-500">
                             Seller:{" "}
@@ -479,7 +485,7 @@ const MarketPlaceClient = ({
                 />
                 <div>
                   <h4 className="font-bold text-slate-200">
-                    {ShowDetailPurchase.name}
+                    {decodeHTMLEntities(ShowDetailPurchase.name)}
                   </h4>
                   <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded mt-1 inline-block">
                     {ShowDetailPurchase.category}
@@ -593,7 +599,9 @@ const MarketPlaceClient = ({
                 />
                 <div>
                   <h4 className="font-bold text-slate-200">
-                    {ShowDetailMarketplacePurchase.inventory.cardName}
+                    {decodeHTMLEntities(
+                      ShowDetailMarketplacePurchase.inventory.cardName,
+                    )}
                   </h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">

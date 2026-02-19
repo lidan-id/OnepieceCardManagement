@@ -1,3 +1,4 @@
+import { decodeHTMLEntities } from "@/app/helper/helper";
 import { StarterDeckDetailProps } from "@/app/types/Card";
 import React from "react";
 
@@ -36,7 +37,7 @@ const StarterCard = ({
         relative col-span-1 group rounded-xl p-3 cursor-pointer transition-all duration-300 border
         ${
           isSelected
-            ? "bg-slate-900 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)] scale-105 -translate-y-1"
+            ? "bg-slate-900 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)] scale-105 -translate-y-1 overflow-hidden"
             : "bg-slate-900/50 border-slate-800 hover:border-slate-600 hover:bg-slate-800"
         }
       `}
@@ -54,7 +55,7 @@ const StarterCard = ({
       <div className="relative  rounded-lg mb-3 aspect-2/3">
         <img
           onClick={(ev) => {
-            ev.stopPropagation(); // Mencegah trigger select saat ingin zoom
+            ev.stopPropagation();
             setImageClickedUrl(e.cards[0].img_full_url);
             setImageClicked(true);
           }}
@@ -76,7 +77,7 @@ const StarterCard = ({
         <h3
           className={`text-[11px] md:text-xs font-bold truncate px-1 transition-colors ${isSelected ? "text-amber-400" : "text-slate-300"}`}
         >
-          {e.cards[0].name}
+          {decodeHTMLEntities(e.cards[0].name)}
         </h3>
 
         {/* Selection Indicator / Button */}

@@ -13,6 +13,7 @@ import DropDown from "../ui/DropDown";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "@heroui/tooltip";
+import { decodeHTMLEntities } from "@/app/helper/helper";
 
 interface UserInventory {
   id: string;
@@ -228,7 +229,7 @@ const InventoryClient = ({
                 >
                   <img
                     src={card.cardImgUrl}
-                    alt={card.cardName}
+                    alt={decodeHTMLEntities(card.cardName)}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
 
@@ -273,7 +274,7 @@ const InventoryClient = ({
                 {/* Actions Footer */}
                 <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
                   <h3 className="text-xs font-bold text-slate-300 truncate text-center">
-                    {card.cardName}
+                    {decodeHTMLEntities(card.cardName)}
                   </h3>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -423,7 +424,9 @@ const SellModal = ({
               alt=""
             />
             <div>
-              <h4 className="font-bold text-slate-200">{card.cardName}</h4>
+              <h4 className="font-bold text-slate-200">
+                {decodeHTMLEntities(card.cardName)}
+              </h4>
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">
                   Total: {card.quantity}
