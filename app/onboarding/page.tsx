@@ -35,6 +35,7 @@ const DECK_FILES = [
   "st26",
   "st27",
   "st28",
+  "st29",
 ];
 
 interface StarterDeckData {
