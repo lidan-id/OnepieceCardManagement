@@ -1,10 +1,45 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import path from "path";
+import { readFile } from "fs/promises";
+
+const priceList = {
+  Common: 10,
+  Uncommon: 20,
+  Rare: 30,
+  SuperRare: 50,
+  SecretRare: 100,
+  Special: 500,
+  Promo: 40,
+  Leader: 10,
+};
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { cardId, quantity, userId } = body;
+
+    const jsonPath = path.join(
+      process.cwd(),
+      "public",
+      "data",
+      "master-cards.json",
+    );
+    const fileContents = await readFile(jsonPath, "utf8");
+    const allCards = JSON.parse(fileContents);
+
+    const cardData = allCards.find((c: any) => c.id === cardId);
+
+    if (!cardData) {
+      return NextResponse.json(
+        { message: "Card not found in database" },
+        { status: 404 },
+      );
+    }
+
+    const rarity = cardData.rarity as keyof typeof priceList;
+    const unitPrice = priceList[rarity] || 0;
+    const totalRefund = unitPrice * quantity;
 
     if (!quantity || quantity < 1) {
       return NextResponse.json(
@@ -22,21 +57,16 @@ export async function POST(request: Request) {
           isListed: false,
         },
         take: quantity,
-        select: { id: true, purchasePrice: true },
+        select: { id: true },
       });
 
       if (availableCards.length < quantity) {
         throw new Error("Not enough cards");
       }
 
-      const totalPrice = availableCards.reduce(
-        (sum, card) => sum + (Math.max(0, card.purchasePrice / 2) || 0),
-        0,
-      );
-
       await tx.user.update({
         where: { id: userId },
-        data: { balance: { increment: totalPrice } },
+        data: { balance: { increment: totalRefund } },
       });
 
       const cardIdsToDelete = availableCards.map((card) => card.id);

@@ -53,6 +53,8 @@ const InventoryClient = ({
     }, 3000);
   };
 
+  const [searchText, setSearchText] = useState("");
+
   const [isShowCard, setIsShowCard] = useState(false);
   const [showCardUrl, setShowCardUrl] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -69,12 +71,11 @@ const InventoryClient = ({
   const [userCard, setUserCard] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // --- Handlers ---
   const openSellModal = (card: UserInventory, type: "market" | "system") => {
     setSellDetailCard(card);
     setUserStoredDeckCard(card.storedDeckQuantity);
     setUserCard(card.quantity);
-    setQuantity(1); // Default quantity 1
+    setQuantity(1);
     setUnitPrice(0);
 
     if (type === "market") setIsShowSellDetailMarket(true);
@@ -180,6 +181,8 @@ const InventoryClient = ({
                 <Search className="h-4 w-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
               </div>
               <input
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
                 type="text"
                 className="block w-full pl-10 pr-3 py-2.5 border border-slate-700 rounded-xl leading-5 bg-slate-900 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all shadow-sm"
                 placeholder="Search cards..."
@@ -214,90 +217,94 @@ const InventoryClient = ({
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-            {filteredInventory.map((card, index) => (
-              <div
-                key={index}
-                className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
-              >
-                {/* Card Image Area */}
+            {filteredInventory.map((card, index) =>
+              searchText === "" ||
+              card.cardName.toLowerCase().includes(searchText.toLowerCase()) ||
+              card.cardId.toLowerCase().includes(searchText.toLowerCase()) ? (
                 <div
-                  className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
-                  onClick={() => {
-                    setIsShowCard(true);
-                    setShowCardUrl(card.cardImgUrl);
-                  }}
+                  key={index}
+                  className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
                 >
-                  <img
-                    src={card.cardImgUrl}
-                    alt={decodeHTMLEntities(card.cardName)}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  {/* Card Image Area */}
+                  <div
+                    className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
+                    onClick={() => {
+                      setIsShowCard(true);
+                      setShowCardUrl(card.cardImgUrl);
+                    }}
+                  >
+                    <img
+                      src={card.cardImgUrl}
+                      alt={decodeHTMLEntities(card.cardName)}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
 
-                  {/* Floating Badges */}
-                  <div className="absolute top-2 right-2 z-10">
-                    <Tooltip
-                      content={
-                        <span className="text-white text-xs font-medium">
-                          Total quantity cards
-                        </span>
-                      }
-                      showArrow={true}
-                    >
-                      <div className=" bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
-                        x{card.quantity}
-                      </div>
-                    </Tooltip>
-                  </div>
-
-                  {card.storedDeckQuantity > 0 && (
-                    <div className="absolute top-2 left-2 z-10">
+                    {/* Floating Badges */}
+                    <div className="absolute top-2 right-2 z-10">
                       <Tooltip
                         content={
                           <span className="text-white text-xs font-medium">
-                            Stored in deck quantity
+                            Total quantity cards
                           </span>
                         }
                         showArrow={true}
                       >
-                        <div className="bg-slate-800/90 backdrop-blur border border-slate-600 text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 cursor-help">
-                          <PackageOpen className="w-3 h-3" />
-                          {card.storedDeckQuantity}
+                        <div className=" bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                          x{card.quantity}
                         </div>
                       </Tooltip>
                     </div>
-                  )}
 
-                  {/* Hover Overlay for Quick View */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                </div>
+                    {card.storedDeckQuantity > 0 && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <Tooltip
+                          content={
+                            <span className="text-white text-xs font-medium">
+                              Stored in deck quantity
+                            </span>
+                          }
+                          showArrow={true}
+                        >
+                          <div className="bg-slate-800/90 backdrop-blur border border-slate-600 text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 cursor-help">
+                            <PackageOpen className="w-3 h-3" />
+                            {card.storedDeckQuantity}
+                          </div>
+                        </Tooltip>
+                      </div>
+                    )}
 
-                {/* Actions Footer */}
-                <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
-                  <h3 className="text-xs font-bold text-slate-300 truncate text-center">
-                    {decodeHTMLEntities(card.cardName)}
-                  </h3>
+                    {/* Hover Overlay for Quick View */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => openSellModal(card, "market")}
-                      className="bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
-                      title="Sell to Marketplace"
-                    >
-                      <ShoppingBag className="w-3 h-3" />
-                      <span>Market</span>
-                    </button>
-                    <button
-                      onClick={() => openSellModal(card, "system")}
-                      className="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
-                      title="Quick Sell to System"
-                    >
-                      <Wallet className="w-3 h-3" />
-                      <span>System</span>
-                    </button>
+                  {/* Actions Footer */}
+                  <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
+                    <h3 className="text-xs font-bold text-slate-300 truncate text-center">
+                      {decodeHTMLEntities(card.cardName)}
+                    </h3>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => openSellModal(card, "market")}
+                        className="bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                        title="Sell to Marketplace"
+                      >
+                        <ShoppingBag className="w-3 h-3" />
+                        <span>Market</span>
+                      </button>
+                      <button
+                        onClick={() => openSellModal(card, "system")}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                        title="Quick Sell to System"
+                      >
+                        <Wallet className="w-3 h-3" />
+                        <span>System</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ) : null,
+            )}
           </div>
         )}
       </div>
@@ -377,7 +384,6 @@ const InventoryClient = ({
   );
 };
 
-// --- Reusable Sell Modal Component ---
 const SellModal = ({
   title,
   subtitle,
@@ -487,10 +493,19 @@ const SellModal = ({
               </p>
             </div>
           ) : (
-            <div className="bg-slate-800 p-3 rounded-lg text-center">
-              <p className="text-xs text-slate-400">
-                System buys at 50% value.
-              </p>
+            <div className="flex items-center gap-10 bg-slate-800 p-3 rounded-lg text-xs text-slate-400">
+              <ol className="list-disc list-inside space-y-1">
+                <li>Common: 10 ¥</li>
+                <li>Leader: 10 ¥</li>
+                <li>Uncommon: 20 ¥</li>
+                <li>Rare: 30 ¥</li>
+              </ol>
+              <ol className="list-disc list-inside space-y-1">
+                <li>Promo: 40 ¥</li>
+                <li>Super Rare: 50 ¥</li>
+                <li>Secret Rare: 100 ¥</li>
+                <li>Special: 500 ¥</li>
+              </ol>
             </div>
           )}
         </div>
