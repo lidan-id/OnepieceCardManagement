@@ -7,6 +7,8 @@ import {
   Wallet,
   PackageOpen,
   Loader2,
+  Users,
+  WalletCards,
 } from "lucide-react";
 import React, { useState } from "react";
 import DropDown from "../ui/DropDown";
@@ -52,6 +54,8 @@ const InventoryClient = ({
       setShowAlert(false);
     }, 3000);
   };
+
+  const [shopIndex, setShopIndex] = useState(0);
 
   const [searchText, setSearchText] = useState("");
 
@@ -152,7 +156,14 @@ const InventoryClient = ({
   };
 
   const filteredInventory = userInventory.filter(
-    (card) => card.color.includes(selectedColor) || selectedColor === "",
+    (card) =>
+      card.color.includes(selectedColor) ||
+      selectedColor === "" ||
+      selectedColor === "All Colors",
+  );
+
+  const filteredAvailableInventory = filteredInventory.filter(
+    (card) => card.quantity - card.storedDeckQuantity > 0,
   );
 
   return (
@@ -173,38 +184,82 @@ const InventoryClient = ({
               cards displayed.
             </p>
           </div>
-
-          {/* Search & Filter Group */}
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative group flex-1 md:w-64">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
-              </div>
-              <input
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                type="text"
-                className="block w-full pl-10 pr-3 py-2.5 border border-slate-700 rounded-xl leading-5 bg-slate-900 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all shadow-sm"
-                placeholder="Search cards..."
-              />
-            </div>
-
-            <div className="w-32 relative">
-              <div className="pl-2">
-                {" "}
-                {/* Wrapper to adjust padding if DropDown doesn't support className */}
-                <DropDown
-                  listItem={[
-                    "Red",
-                    "Green",
-                    "Blue",
-                    "Purple",
-                    "Yellow",
-                    "Black",
-                  ]}
-                  setSelectedColor={setSelectedColor}
+          {/* Search & Filter Group && Tab Switcher */}
+          <div className="flex md:flex-row flex-col gap-5 items-end w-full ">
+            {/* Search & Filter Group */}
+            <div className="flex items-center gap-3 w-full md:w-auto flex-1">
+              <div className="relative group flex-1 md:w-64">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+                </div>
+                <input
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  type="text"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-700 rounded-xl leading-5 bg-slate-900 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all shadow-sm"
+                  placeholder="Search cards..."
                 />
               </div>
+
+              <div className="w-32 relative">
+                <div className="pl-2">
+                  {" "}
+                  {/* Wrapper to adjust padding if DropDown doesn't support className */}
+                  <DropDown
+                    listItem={[
+                      "All Colors",
+                      "Red",
+                      "Green",
+                      "Blue",
+                      "Purple",
+                      "Yellow",
+                      "Black",
+                    ]}
+                    setSelectedColor={setSelectedColor}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Tab Switcher */}
+            <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
+              <Tooltip
+                content={
+                  <span className="text-white text-xs font-medium">
+                    View All Cards
+                  </span>
+                }
+                showArrow={true}
+              >
+                <button
+                  onClick={() => setShopIndex(0)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                    shopIndex === 0
+                      ? "bg-amber-500 text-slate-900 shadow-lg"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <Tooltip
+                content={
+                  <span className="text-white text-xs font-medium">
+                    View Available Cards
+                  </span>
+                }
+                showArrow={true}
+              >
+                <button
+                  onClick={() => setShopIndex(1)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                    shopIndex === 1
+                      ? "bg-amber-500 text-slate-900 shadow-lg"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  <WalletCards className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -215,7 +270,7 @@ const InventoryClient = ({
             <PackageOpen className="w-16 h-16 mb-4 opacity-20" />
             <p>No cards found with these filters.</p>
           </div>
-        ) : (
+        ) : shopIndex === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             {filteredInventory.map((card, index) =>
               searchText === "" ||
@@ -272,6 +327,79 @@ const InventoryClient = ({
                         </Tooltip>
                       </div>
                     )}
+
+                    {/* Hover Overlay for Quick View */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
+                    <h3 className="text-xs font-bold text-slate-300 truncate text-center">
+                      {decodeHTMLEntities(card.cardName)}
+                    </h3>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => openSellModal(card, "market")}
+                        className="bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                        title="Sell to Marketplace"
+                      >
+                        <ShoppingBag className="w-3 h-3" />
+                        <span>Market</span>
+                      </button>
+                      <button
+                        onClick={() => openSellModal(card, "system")}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 text-[10px] font-bold py-1.5 rounded-lg transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                        title="Quick Sell to System"
+                      >
+                        <Wallet className="w-3 h-3" />
+                        <span>System</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null,
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+            {filteredAvailableInventory.map((card, index) =>
+              searchText === "" ||
+              card.cardName.toLowerCase().includes(searchText.toLowerCase()) ||
+              card.cardId.toLowerCase().includes(searchText.toLowerCase()) ? (
+                <div
+                  key={index}
+                  className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
+                >
+                  {/* Card Image Area */}
+                  <div
+                    className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
+                    onClick={() => {
+                      setIsShowCard(true);
+                      setShowCardUrl(card.cardImgUrl);
+                    }}
+                  >
+                    <img
+                      src={card.cardImgUrl}
+                      alt={decodeHTMLEntities(card.cardName)}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+
+                    {/* Floating Badges */}
+                    <div className="absolute top-2 right-2 z-10">
+                      <Tooltip
+                        content={
+                          <span className="text-white text-xs font-medium">
+                            Total quantity cards
+                          </span>
+                        }
+                        showArrow={true}
+                      >
+                        <div className=" bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                          x{card.quantity - card.storedDeckQuantity}
+                        </div>
+                      </Tooltip>
+                    </div>
 
                     {/* Hover Overlay for Quick View */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />

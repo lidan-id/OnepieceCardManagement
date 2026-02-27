@@ -23,7 +23,7 @@ const DropDown = ({
       </p>
       <ChevronDown className="w-3 h-3" />
       {isOpen && (
-        <div className="absolute top-[110%] shadow-lg bg-white w-full left-0 rounded-md z-10 p-1">
+        <div className="absolute top-[110%] shadow-lg bg-slate-900 w-full left-0 rounded-md z-10000 p-1">
           {listItem.map((item, index) => (
             <div
               onClick={() => {
@@ -31,7 +31,7 @@ const DropDown = ({
                 setSelectedColor(listItem[index]);
               }}
               key={index}
-              className="p-1 hover:bg-amber-400 rounded-sm flex items-center gap-1"
+              className="p-1 hover:bg-amber-400 rounded-sm flex items-center gap-1 hover:text-slate-950"
             >
               {selectedItemIndex === index ? (
                 <Check className="w-3 h-3" />

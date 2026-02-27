@@ -112,6 +112,9 @@ const MarketPlaceClient = ({
   const [isShowCard, setIsShowCard] = useState(false);
   const [showCardUrl, setShowCardUrl] = useState("");
 
+  const [isShowRemoveModal, setIsShowRemoveModal] = useState(false);
+  const [cardToRemove, setCardToRemove] = useState<Marketplace | null>(null);
+
   const [isShowDetailPurchase, setIsShowDetailPurchase] = useState(false);
   const [ShowDetailPurchase, setShowDetailPurchase] =
     useState<CardDetailProps | null>(null);
@@ -128,7 +131,7 @@ const MarketPlaceClient = ({
   // --- ACTIONS ---
   const openSystemBuyModal = (card: CardDetailProps) => {
     setShowDetailPurchase(card);
-    setUnitPrice(0); // Reset or set default
+    setUnitPrice(0);
     setQuantity(1);
     setIsShowDetailPurchase(true);
   };
@@ -136,6 +139,45 @@ const MarketPlaceClient = ({
   const openUserBuyModal = (marketItem: Marketplace) => {
     setShowDetailMarketplacePurchase(marketItem);
     setIsShowDetailMarketplacePurchase(true);
+  };
+
+  const openRemoveModal = (marketItem: Marketplace) => {
+    setCardToRemove(marketItem);
+    setIsShowRemoveModal(true);
+  };
+
+  const handleRemoveListing = async () => {
+    if (!cardToRemove) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch(`api/cancel-usermarket`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          marketId: cardToRemove.id,
+          userId: userData?.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        showAlertCard(
+          "red",
+          "Error",
+          result.message || "Failed to remove listing",
+        );
+      } else {
+        showAlertCard("green", "Success", "Listing removed successfully");
+        setIsShowRemoveModal(false);
+        router.refresh();
+      }
+    } catch (error) {
+      showAlertCard("red", "Error", "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBuyCard = async () => {
@@ -390,7 +432,7 @@ const MarketPlaceClient = ({
                       </div>
 
                       {/* Content */}
-                      <div className="p-3 flex flex-col flex-1 gap-2">
+                      <div className="p-3 flex flex-col flex-1 gap-2 ">
                         <div>
                           <h3 className="text-sm font-bold text-white truncate">
                             {decodeHTMLEntities(marketItem.inventory.cardName)}
@@ -403,13 +445,25 @@ const MarketPlaceClient = ({
                           </p>
                         </div>
 
-                        <button
-                          onClick={() => openUserBuyModal(marketItem)}
-                          className="mt-auto w-full bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                          <Users className="w-3 h-3" />
-                          Buy from User
-                        </button>
+                        {userData?.id !== marketItem.sellerId && (
+                          <button
+                            onClick={() => openUserBuyModal(marketItem)}
+                            className="w-full bg-slate-800 hover:bg-amber-500 hover:text-slate-900 text-amber-500 border border-slate-700 hover:border-amber-500 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                          >
+                            <Users className="w-3 h-3" />
+                            Buy from User
+                          </button>
+                        )}
+
+                        {userData?.id === marketItem.sellerId && (
+                          <button
+                            onClick={() => openRemoveModal(marketItem)}
+                            className="mt-auto w-full bg-slate-800 hover:bg-red-900 hover:text-white text-red-500 border border-slate-700 hover:border-red-900 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                          >
+                            <X className="w-3 h-3" />
+                            Remove
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -650,6 +704,74 @@ const MarketPlaceClient = ({
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   "Confirm Purchase"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Remove Listing Modal */}
+      {isShowRemoveModal && cardToRemove && (
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
+          onClick={() => setIsShowRemoveModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900 w-full max-w-sm rounded-2xl border border-red-500/30 shadow-2xl overflow-hidden"
+          >
+            <div className="p-5 border-b border-slate-800 bg-red-500/5 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-red-500 flex items-center gap-2">
+                <X className="w-5 h-5" />
+                Remove Listing?
+              </h3>
+              <button
+                onClick={() => setIsShowRemoveModal(false)}
+                className="text-slate-500 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 text-center space-y-4">
+              <div className="mx-auto w-20 h-28 bg-slate-800 rounded-lg overflow-hidden border border-slate-700 mb-2">
+                <img
+                  src={cardToRemove.inventory.cardImgUrl}
+                  className="w-full h-full object-cover opacity-50 grayscale"
+                  alt=""
+                />
+              </div>
+
+              <p className="text-sm text-slate-300">
+                Are you sure you want to remove{" "}
+                <span className="text-white font-bold">
+                  {decodeHTMLEntities(cardToRemove.inventory.cardName)}
+                </span>{" "}
+                from the market?
+              </p>
+              <p className="text-xs text-slate-500">
+                The card will be returned to your inventory and will be
+                available for deck building again.
+              </p>
+            </div>
+
+            <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
+              <button
+                onClick={() => setIsShowRemoveModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemoveListing}
+                disabled={loading}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 flex justify-center items-center gap-2 transition-colors shadow-lg shadow-red-900/20"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Remove Card"
                 )}
               </button>
             </div>

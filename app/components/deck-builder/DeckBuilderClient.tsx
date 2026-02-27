@@ -12,6 +12,7 @@ import {
   Layers,
   LayoutGrid,
   Filter,
+  Import,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import AlertCard from "../ui/AlertCard";
@@ -89,7 +90,10 @@ const DeckBuilderClient = ({
     setTargetList: React.Dispatch<React.SetStateAction<UserInventory[]>>,
     addToNewDeck: boolean,
   ) => {
-    const existingCardInTarget = targetList.find((item) => item.id === card.id);
+    const existingCardInTarget = targetList.find(
+      (item) => item.cardId === card.cardId,
+    );
+
     if (addToNewDeck && existingCardInTarget?.quantity === 4) {
       showAlertCard(
         "red",
@@ -124,7 +128,9 @@ const DeckBuilderClient = ({
     if (existingCardInTarget) {
       setTargetList((prev) =>
         prev.map((item) =>
-          item.id === card.id ? { ...item, quantity: item.quantity + 1 } : item,
+          item.cardId === card.cardId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
         ),
       );
     } else {
@@ -186,6 +192,95 @@ const DeckBuilderClient = ({
     }
 
     setIsShowSaveModal(true);
+  };
+
+  const handleImport = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+
+      if (!clipboardText) {
+        alert("Clipboard kosong! Silakan copy list kartu terlebih dahulu.");
+        return;
+      }
+
+      const lines = clipboardText
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+
+      let importedDeck: UserInventory[] = [];
+      let collectionCards: UserInventory[] = userInventory.map((card) => ({
+        ...card,
+      }));
+
+      for (const line of lines) {
+        const [quantityPart, cardIdPart] = line
+          .split("x")
+          .map((part) => part.trim());
+        const quantity = parseInt(quantityPart, 10);
+        const cardId = cardIdPart;
+
+        const inventoryCard = userInventory.find(
+          (card) => card.cardId === cardId,
+        );
+
+        if (!inventoryCard) {
+          showAlertCard(
+            "red",
+            "Import Failed",
+            `Card with ID ${cardId} not found in user inventory`,
+          );
+          importedDeck = [];
+          collectionCards = userInventory;
+          break;
+        }
+
+        if (quantity > inventoryCard.quantity) {
+          showAlertCard(
+            "red",
+            "Import Failed",
+            `You only have ${inventoryCard.quantity} copies of ${inventoryCard.cardName} (ID: ${inventoryCard.cardId}) in your inventory, but the imported deck requires ${quantity}.`,
+          );
+          importedDeck = [];
+          collectionCards = userInventory;
+          console.log(userInventory);
+          break;
+        }
+
+        importedDeck.push({ ...inventoryCard, quantity });
+        if (inventoryCard.quantity - quantity === 0) {
+          collectionCards.splice(
+            collectionCards.findIndex(
+              (card) => card.cardId === inventoryCard.cardId,
+            ),
+            1,
+          );
+        } else {
+          const index = collectionCards.findIndex(
+            (card) => card.cardId === inventoryCard.cardId,
+          );
+          if (index !== -1) {
+            collectionCards[index] = {
+              ...inventoryCard,
+              quantity: inventoryCard.quantity - quantity,
+            };
+          }
+        }
+      }
+
+      setNewDeck(importedDeck);
+      setCollection(collectionCards);
+      if (importedDeck.length > 0) {
+        showAlertCard(
+          "green",
+          "Import Success",
+          "Deck list loaded from clipboard",
+        );
+      }
+    } catch (error) {
+      console.error("Gagal membaca clipboard:", error);
+      showAlertCard("red", "Import Failed", "Please allow clipboard access");
+    }
   };
 
   const handleModalSave = async () => {
@@ -338,6 +433,13 @@ const DeckBuilderClient = ({
                 >
                   <Save className="w-4 h-4" />
                   <span className="hidden sm:inline">Save Deck</span>
+                </button>
+                <button
+                  onClick={handleImport}
+                  className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold px-4 py-2 rounded-lg transition-transform active:scale-95"
+                >
+                  <Import className="w-4 h-4" />
+                  <span className="hidden sm:inline">Import Deck</span>
                 </button>
               </div>
             </div>
