@@ -1,0 +1,22 @@
+{
+  "id": "OP14-098",
+  "pack_id": "OP14-EB04",
+  "name": "Crescent Cutlass",
+  "rarity": "Common",
+  "category": "Event",
+  "img_url": "../images/cardlist/card/OP14-098.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-098.png",
+  "colors": [
+    "Black"
+  ],
+  "cost": 1,
+  "attributes": [],
+  "power": null,
+  "counter": null,
+  "types": [
+    "Impel Down",
+    "Former Baroque Works"
+  ],
+  "effect": "[Main] If there is a Character with a cost of 0 or with a cost of 8 or more, all of your Characters with a type including \"Baroque Works\" gain +3 cost until the end of your opponent's next End Phase.\n[Counter] Your Leader gains +3000 power during this battle.",
+  "trigger": null
+}

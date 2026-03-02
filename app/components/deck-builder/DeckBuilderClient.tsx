@@ -169,8 +169,21 @@ const DeckBuilderClient = ({
   const itHasLeader = newDeck.find((item) => item.cardCategory === "Leader");
 
   const handleTrash = () => {
+    setCollection((prev) => {
+      const combined = [...prev, ...newDeck].reduce((acc, card) => {
+        const existing = acc.find((c) => c.cardId === card.cardId);
+        if (existing) {
+          return acc.map((c) =>
+            c.cardId === card.cardId
+              ? { ...c, quantity: c.quantity + card.quantity }
+              : c,
+          );
+        }
+        return [...acc, card];
+      }, [] as UserInventory[]);
+      return combined;
+    });
     setNewDeck([]);
-    setCollection(userInventory); // Reset collection visually not accurate but simple reset logic
   };
 
   const handleSave = () => {
@@ -199,7 +212,7 @@ const DeckBuilderClient = ({
       const clipboardText = await navigator.clipboard.readText();
 
       if (!clipboardText) {
-        alert("Clipboard kosong! Silakan copy list kartu terlebih dahulu.");
+        showAlertCard("red", "Import Failed", "Clipboard is empty");
         return;
       }
 
@@ -209,77 +222,145 @@ const DeckBuilderClient = ({
         .filter((line) => line !== "");
 
       let importedDeck: UserInventory[] = [];
-      let collectionCards: UserInventory[] = userInventory.map((card) => ({
+      let collectionCards: UserInventory[] = collection.map((card) => ({
         ...card,
       }));
+      console.log("Collection Cards for Import:", collectionCards);
+      let currentDeckCards: UserInventory[] = newDeck.map((card) => ({
+        ...card,
+      }));
+      console.log("Current Deck Cards for Import:", currentDeckCards);
 
+      // Gabungkan kartu collection dan deck saat ini untuk validasi
+      const combinedCards = [...collectionCards, ...currentDeckCards];
+
+      const combineQuantity = combinedCards.reduce((acc, card) => {
+        const existing = acc.find((c) => c.cardId === card.cardId);
+        if (existing) {
+          return acc.map((c) =>
+            c.cardId === card.cardId
+              ? { ...c, quantity: c.quantity + card.quantity }
+              : c,
+          );
+        }
+        return [...acc, card];
+      }, [] as UserInventory[]);
+
+      // Cek apakah kartu yang diimpor itu ada atau tidak
+      let hasLeaderInVariants = false;
       for (const line of lines) {
-        const [quantityPart, cardIdPart] = line
-          .split("x")
-          .map((part) => part.trim());
-        const quantity = parseInt(quantityPart, 10);
-        const cardId = cardIdPart;
+        const match = line.match(/^(\d+)[xX]\s*(.+)$/);
+        if (!match) continue;
 
-        const inventoryCard = userInventory.find(
-          (card) => card.cardId === cardId,
+        const quantity = parseInt(match[1], 10);
+        const requestedCardId = match[2].trim();
+
+        const baseRequestedId = requestedCardId.split("_")[0];
+
+        const availableVariants = combineQuantity.filter(
+          (card) => card.cardId.split("_")[0] === baseRequestedId,
         );
 
-        if (!inventoryCard) {
+        const totalAvailableQty = availableVariants.reduce(
+          (sum, card) => sum + card.quantity,
+          0,
+        );
+
+        if (availableVariants.length === 0) {
           showAlertCard(
             "red",
             "Import Failed",
-            `Card with ID ${cardId} not found in user inventory`,
+            `Card ID ${requestedCardId} not found in your collection or current deck.`,
           );
-          importedDeck = [];
-          collectionCards = userInventory;
-          break;
+          return;
         }
 
-        if (quantity > inventoryCard.quantity) {
+        if (quantity > totalAvailableQty) {
           showAlertCard(
             "red",
             "Import Failed",
-            `You only have ${inventoryCard.quantity} copies of ${inventoryCard.cardName} (ID: ${inventoryCard.cardId}) in your inventory, but the imported deck requires ${quantity}.`,
+            `You only have ${totalAvailableQty} total copies of ${availableVariants[0].cardName} (ID: ${baseRequestedId}). Need ${quantity}.`,
           );
-          importedDeck = [];
-          collectionCards = userInventory;
-          console.log(userInventory);
-          break;
+          return;
         }
 
-        importedDeck.push({ ...inventoryCard, quantity });
-        if (inventoryCard.quantity - quantity === 0) {
-          collectionCards.splice(
-            collectionCards.findIndex(
-              (card) => card.cardId === inventoryCard.cardId,
-            ),
-            1,
-          );
-        } else {
-          const index = collectionCards.findIndex(
-            (card) => card.cardId === inventoryCard.cardId,
-          );
-          if (index !== -1) {
-            collectionCards[index] = {
-              ...inventoryCard,
-              quantity: inventoryCard.quantity - quantity,
-            };
+        if (availableVariants[0].cardCategory === "Leader") {
+          if (hasLeaderInVariants) {
+            showAlertCard(
+              "red",
+              "Import Failed",
+              "Multiple Leaders detected in the clipboard. A deck can only have 1 Leader.",
+            );
+            return;
           }
+
+          if (quantity !== 1) {
+            showAlertCard(
+              "red",
+              "Import Failed",
+              "You can only import exactly 1 copy of a Leader card.",
+            );
+            return;
+          }
+
+          hasLeaderInVariants = true;
+
+          const leaderToUse = availableVariants.find((v) => v.quantity > 0);
+
+          if (leaderToUse) {
+            setLeaderCardImg(leaderToUse.cardImgUrl);
+            setLeaderId(leaderToUse.cardId);
+          }
+        }
+
+        // Ambil kartu dari varian yang tersedia satu per satu sampai kuantitas terpenuhi
+        let remainingNeeded = quantity;
+        for (const variant of availableVariants) {
+          if (remainingNeeded <= 0) break;
+
+          // Ambil sebanyak yang dibutuhkan, tapi tidak melebihi stok varian tersebut
+          const takeAmount = Math.min(variant.quantity, remainingNeeded);
+
+          importedDeck.push({
+            ...variant,
+            quantity: takeAmount,
+          });
+
+          remainingNeeded -= takeAmount;
         }
       }
 
       setNewDeck(importedDeck);
-      setCollection(collectionCards);
-      if (importedDeck.length > 0) {
-        showAlertCard(
-          "green",
-          "Import Success",
-          "Deck list loaded from clipboard",
-        );
-      }
+
+      setCollection(() => {
+        return combineQuantity
+          .map((card) => {
+            const importedCard = importedDeck.find(
+              (imported) => imported.cardId === card.cardId,
+            );
+            if (importedCard) {
+              return {
+                ...card,
+                quantity: card.quantity - importedCard.quantity,
+              };
+            }
+            return card;
+          })
+          .filter((card) => card.quantity > 0);
+      });
+
+      showAlertCard(
+        "green",
+        "Import Successful",
+        "Deck imported from clipboard!",
+      );
     } catch (error) {
       console.error("Gagal membaca clipboard:", error);
-      showAlertCard("red", "Import Failed", "Please allow clipboard access");
+      showAlertCard(
+        "red",
+        "Import Failed",
+        "Please allow clipboard access or ensure valid text.",
+      );
     }
   };
 
@@ -293,6 +374,8 @@ const DeckBuilderClient = ({
       newDeck: newDeck,
       deckId: paramsId !== "create-new" ? paramsId : undefined,
     };
+
+    console.log("Payload to save:", payload);
 
     const url =
       paramsId !== "create-new" ? "/api/edit-deck" : "/api/create-deck";

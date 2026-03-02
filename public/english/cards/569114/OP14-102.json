@@ -1,0 +1,23 @@
+{
+  "id": "OP14-102",
+  "pack_id": "OP14-EB04",
+  "name": "Kumacy",
+  "rarity": "Common",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-102.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-102.png",
+  "colors": [
+    "Yellow"
+  ],
+  "cost": 1,
+  "attributes": [
+    "Strike"
+  ],
+  "power": 2000,
+  "counter": 2000,
+  "types": [
+    "Thriller Bark Pirates"
+  ],
+  "effect": "-",
+  "trigger": "[Trigger] Play up to 1 {Thriller Bark Pirates} type Character card with a cost of 4 or less from your trash rested."
+}

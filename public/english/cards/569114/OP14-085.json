@@ -1,0 +1,23 @@
+{
+  "id": "OP14-085",
+  "pack_id": "OP14-EB04",
+  "name": "Miss.Goldenweek(Marianne)",
+  "rarity": "Uncommon",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-085.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-085.png",
+  "colors": [
+    "Black"
+  ],
+  "cost": 1,
+  "attributes": [
+    "Wisdom"
+  ],
+  "power": 2000,
+  "counter": 2000,
+  "types": [
+    "Baroque Works"
+  ],
+  "effect": "[On K.O.] Draw 2 cards and trash 2 cards from your hand.",
+  "trigger": null
+}

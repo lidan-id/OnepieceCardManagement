@@ -8,6 +8,7 @@ export async function middleware(request: NextRequest) {
     "/inventory",
     "/marketplace",
     "/deck-builder",
+    "/booster-packs",
   ];
   const authToken = request.cookies.get("authToken")?.value;
   const secret = new TextEncoder().encode(process.env.SECRET_KEY);

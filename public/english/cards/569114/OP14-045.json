@@ -1,0 +1,24 @@
+{
+  "id": "OP14-045",
+  "pack_id": "OP14-EB04",
+  "name": "Kuroobi",
+  "rarity": "Uncommon",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-045.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-045.png",
+  "colors": [
+    "Blue"
+  ],
+  "cost": 3,
+  "attributes": [
+    "Strike"
+  ],
+  "power": 3000,
+  "counter": 1000,
+  "types": [
+    "Fish-Man",
+    "The Sun Pirates"
+  ],
+  "effect": "When a card is trashed from your hand by an effect, this Character gains [Rush] during this turn.<br>(This card can attack on the turn in which it is played.)<br>[On K.O.] Draw 1 card.",
+  "trigger": null
+}

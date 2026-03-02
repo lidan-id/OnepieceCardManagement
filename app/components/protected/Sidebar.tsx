@@ -10,12 +10,14 @@ import {
   Settings,
   LogOut,
   Anchor,
+  Package,
 } from "lucide-react";
 
 const sidebarItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Inventory", href: "/inventory", icon: Box },
   { name: "Deck Builder", href: "/deck-builder/create-new", icon: Sword },
+  { name: "Booster Packs", href: "/booster-packs", icon: Package },
   { name: "Marketplace", href: "/marketplace", icon: ShoppingBag },
 ];
 

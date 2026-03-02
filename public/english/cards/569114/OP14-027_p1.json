@@ -1,0 +1,25 @@
+{
+  "id": "OP14-027_p1",
+  "pack_id": "OP14-EB04",
+  "name": "Shanks",
+  "rarity": "Rare",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-027_p1.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-027_p1.png",
+  "colors": [
+    "Green"
+  ],
+  "cost": 7,
+  "attributes": [
+    "Slash"
+  ],
+  "power": 9000,
+  "counter": null,
+  "types": [
+    "East Blue",
+    "The Four Emperors",
+    "Red-Haired Pirates"
+  ],
+  "effect": "[Your Turn] When this Character becomes rested, rest up to 1 of your opponent's Characters with 7000 base power or less.<br>[Opponent's Turn] If this Character is rested, give all of your opponent's Characters −1000 power.",
+  "trigger": null
+}

@@ -1,0 +1,24 @@
+{
+  "id": "OP14-044",
+  "pack_id": "OP14-EB04",
+  "name": "Edward.Newgate",
+  "rarity": "Common",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-044.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-044.png",
+  "colors": [
+    "Blue"
+  ],
+  "cost": 8,
+  "attributes": [
+    "Special"
+  ],
+  "power": 8000,
+  "counter": 1000,
+  "types": [
+    "The Four Emperors",
+    "Whitebeard Pirates"
+  ],
+  "effect": "[Blocker]<br>[On Play] Reveal 1 card from the top of your deck. If that card's type includes \"Whitebeard Pirates\", draw 2 cards and trash 1 card from your hand.",
+  "trigger": null
+}

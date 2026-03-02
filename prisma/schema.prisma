@@ -17,6 +17,16 @@ model User {
   inventory     UserInventory[]
   listings      Marketplace[]   @relation("Seller")
   decks         Deck[]
+  packs         UserPack[]
+}
+
+model UserPack {
+  id        String   @id @default(cuid())
+  userId    String
+  packId    String
+  packName  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Deck {

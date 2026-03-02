@@ -1,0 +1,23 @@
+{
+  "id": "OP14-081",
+  "pack_id": "OP14-EB04",
+  "name": "Spider Mice",
+  "rarity": "Common",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-081.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-081.png",
+  "colors": [
+    "Black"
+  ],
+  "cost": 1,
+  "attributes": [
+    "Special"
+  ],
+  "power": 1000,
+  "counter": 1000,
+  "types": [
+    "Thriller Bark Pirates"
+  ],
+  "effect": "[On Play] Trash 3 cards from the top of your deck.\n[On K.O.] K.O. up to 1 of your opponent's Characters with a base cost of 1.",
+  "trigger": null
+}

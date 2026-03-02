@@ -1,0 +1,23 @@
+{
+  "id": "OP14-053",
+  "pack_id": "OP14-EB04",
+  "name": "Vista",
+  "rarity": "Common",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-053.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-053.png",
+  "colors": [
+    "Blue"
+  ],
+  "cost": 3,
+  "attributes": [
+    "Slash"
+  ],
+  "power": 4000,
+  "counter": 1000,
+  "types": [
+    "Whitebeard Pirates"
+  ],
+  "effect": "[Blocker]<br>[Opponent's Turn] If you have 7 or less cards in your hand, this Character's base power becomes the same as your Leader's base power.",
+  "trigger": null
+}

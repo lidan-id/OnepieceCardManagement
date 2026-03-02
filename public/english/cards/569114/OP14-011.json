@@ -1,0 +1,25 @@
+{
+  "id": "OP14-011",
+  "pack_id": "OP14-EB04",
+  "name": "Bartolomeo",
+  "rarity": "Uncommon",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-011.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-011.png",
+  "colors": [
+    "Red"
+  ],
+  "cost": 2,
+  "attributes": [
+    "Special"
+  ],
+  "power": 2000,
+  "counter": 2000,
+  "types": [
+    "Dressrosa",
+    "Supernovas",
+    "Barto Club"
+  ],
+  "effect": "[DON!! x2] This Character gains [Blocker].<br>(After your opponent declares an attack, you may rest this card to make it the new target of the attack.)",
+  "trigger": null
+}

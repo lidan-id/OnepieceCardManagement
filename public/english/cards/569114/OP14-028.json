@@ -1,0 +1,23 @@
+{
+  "id": "OP14-028",
+  "pack_id": "OP14-EB04",
+  "name": "Johnny",
+  "rarity": "Common",
+  "category": "Character",
+  "img_url": "../images/cardlist/card/OP14-028.png",
+  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-028.png",
+  "colors": [
+    "Green"
+  ],
+  "cost": 2,
+  "attributes": [
+    "Slash"
+  ],
+  "power": 2000,
+  "counter": 1000,
+  "types": [
+    "East Blue"
+  ],
+  "effect": "[Your Turn] When this Character becomes rested, K.O. up to 1 of your opponent's rested Characters with a cost of 2 or less.",
+  "trigger": null
+}
