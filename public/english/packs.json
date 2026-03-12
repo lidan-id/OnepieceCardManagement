@@ -18,6 +18,24 @@
     }
   },
   {
+    "id": "569204",
+    "raw_title": "EXTRA BOOSTER -EGGHEAD CRISIS- [EB-04]",
+    "title_parts": {
+      "prefix": "EXTRA BOOSTER",
+      "title": "EGGHEAD CRISIS",
+      "label": "EB-04"
+    }
+  },
+  {
+    "id": "569203",
+    "raw_title": "EXTRA BOOSTER -ONE PIECE Heroines Edition- [EB-03]",
+    "title_parts": {
+      "prefix": "EXTRA BOOSTER",
+      "title": "ONE PIECE Heroines Edition",
+      "label": "EB-03"
+    }
+  },
+  {
     "id": "569202",
     "raw_title": "EXTRA BOOSTER -Anime 25th Collection- [EB-02]",
     "title_parts": {
@@ -36,11 +54,20 @@
     }
   },
   {
-    "id": "569114",
-    "raw_title": "BOOSTER PACK -THE SEVEN WARLORDS OF THE SEA- [OP-14 - EB-04]",
+    "id": "569115",
+    "raw_title": "BOOSTER PACK -Adventure on KAMI’s Island- [OP-15]",
     "title_parts": {
       "prefix": "BOOSTER PACK",
-      "title": "THE SEVEN WARLORDS OF THE SEA",
+      "title": "Adventure on KAMI’s Island",
+      "label": "OP-15"
+    }
+  },
+  {
+    "id": "569114",
+    "raw_title": "BOOSTER PACK -The Azure Sea’s Seven- [OP-14]",
+    "title_parts": {
+      "prefix": "BOOSTER PACK",
+      "title": "The Azure Sea’s Seven",
       "label": "OP-14"
     }
   },

@@ -1,20 +1,21 @@
 {
   "id": "OP14-011",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Bartolomeo",
   "rarity": "Uncommon",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-011.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-011.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-011.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-011.png?251219",
   "cost": 2,
   "attributes": [
     "Special"
   ],
   "power": 2000,
   "counter": 2000,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "Dressrosa",
     "Supernovas",

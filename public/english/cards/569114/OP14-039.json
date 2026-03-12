@@ -1,18 +1,19 @@
 {
   "id": "OP14-039",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Coffin Boat",
   "rarity": "Uncommon",
   "category": "Stage",
-  "img_url": "../images/cardlist/card/OP14-039.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-039.png",
-  "colors": [
-    "Green"
-  ],
+  "img_url": "../images/cardlist/card/OP14-039.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-039.png?251219",
   "cost": 1,
   "attributes": [],
   "power": null,
   "counter": null,
+  "colors": [
+    "Green"
+  ],
+  "block_number": 4,
   "types": [
     "East Blue",
     "The Seven Warlords of the Sea"

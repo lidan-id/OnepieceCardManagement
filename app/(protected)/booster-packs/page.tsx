@@ -50,6 +50,7 @@ async function getPacks() {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const allPacks = JSON.parse(fileContent);
 
+  console.log(allPacks);
   // Filter for booster packs
   return allPacks.filter(
     (pack: any) =>

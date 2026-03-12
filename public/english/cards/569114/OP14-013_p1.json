@@ -1,20 +1,21 @@
 {
   "id": "OP14-013_p1",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Monkey.D.Luffy",
   "rarity": "SuperRare",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-013_p1.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-013_p1.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-013_p1.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-013_p1.png?251219",
   "cost": 1,
   "attributes": [
     "Strike"
   ],
   "power": null,
   "counter": 1000,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "Supernovas",
     "Straw Hat Crew"

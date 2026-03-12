@@ -1,20 +1,21 @@
 {
   "id": "OP14-050",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Chew",
   "rarity": "Uncommon",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-050.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-050.png",
-  "colors": [
-    "Blue"
-  ],
+  "img_url": "../images/cardlist/card/OP14-050.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-050.png?251219",
   "cost": 1,
   "attributes": [
     "Ranged"
   ],
   "power": 3000,
   "counter": null,
+  "colors": [
+    "Blue"
+  ],
+  "block_number": 4,
   "types": [
     "Fish-Man",
     "The Sun Pirates"

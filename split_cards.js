@@ -8,12 +8,12 @@ const packDir = path.join(
   "public",
   "english",
   "data",
-  "569114.json",
+  "569204.json",
 );
 const fileContent = fs.readFileSync(packDir, "utf-8");
 const cardsData = JSON.parse(fileContent);
 
-const outputFolder = "./public/english/cards/569114/";
+const outputFolder = "./public/english/cards/569204/";
 
 // Buat foldernya jika belum ada
 if (!fs.existsSync(outputFolder)) {

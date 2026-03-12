@@ -1,18 +1,19 @@
 {
   "id": "OP14-118",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "You'll Frighten Me... ♡",
   "rarity": "Rare",
   "category": "Event",
-  "img_url": "../images/cardlist/card/OP14-118.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-118.png",
-  "colors": [
-    "Yellow"
-  ],
+  "img_url": "../images/cardlist/card/OP14-118.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-118.png?251219",
   "cost": 1,
   "attributes": [],
   "power": null,
   "counter": null,
+  "colors": [
+    "Yellow"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Kuja Pirates"

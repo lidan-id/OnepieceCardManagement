@@ -1,20 +1,21 @@
 {
   "id": "OP14-103",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Gloriosa (Grandma Nyon)",
   "rarity": "Common",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-103.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-103.png",
-  "colors": [
-    "Yellow"
-  ],
+  "img_url": "../images/cardlist/card/OP14-103.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-103.png?251219",
   "cost": 2,
   "attributes": [
     "Wisdom"
   ],
   "power": null,
   "counter": 1000,
+  "colors": [
+    "Yellow"
+  ],
+  "block_number": 4,
   "types": [
     "Amazon Lily"
   ],

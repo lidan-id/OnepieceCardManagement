@@ -1,20 +1,21 @@
 {
   "id": "OP14-002",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Urouge",
   "rarity": "Uncommon",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-002.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-002.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-002.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-002.png?251219",
   "cost": 3,
   "attributes": [
     "Strike"
   ],
   "power": 2000,
   "counter": 1000,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "Supernovas",
     "Fallen Monk Pirates"

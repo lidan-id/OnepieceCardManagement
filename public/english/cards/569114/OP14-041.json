@@ -1,21 +1,22 @@
 {
   "id": "OP14-041",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Boa Hancock",
   "rarity": "Leader",
   "category": "Leader",
-  "img_url": "../images/cardlist/card/OP14-041.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-041.png",
-  "colors": [
-    "Blue",
-    "Yellow"
-  ],
+  "img_url": "../images/cardlist/card/OP14-041.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-041.png?251219",
   "cost": 4,
   "attributes": [
     "Special"
   ],
   "power": 5000,
   "counter": null,
+  "colors": [
+    "Blue",
+    "Yellow"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Kuja Pirates"

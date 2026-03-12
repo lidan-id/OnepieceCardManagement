@@ -1,23 +1,25 @@
 {
   "id": "OP12-030_p2",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Dracule Mihawk",
   "rarity": "Special",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP12-030_p2.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP12-030_p2.png",
-  "colors": [
-    "Green"
-  ],
+  "img_url": "../images/cardlist/card/OP12-030_p2.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP12-030_p2.png?251219",
   "cost": 8,
   "attributes": [
     "Slash"
   ],
   "power": 8000,
   "counter": null,
-  "types": [
-    "Muggy Kingdom/The Seven Warlords of the Sea"
+  "colors": [
+    "Green"
   ],
-  "effect": "[Blocker] [On Play] Set up to 4 of your DON!! cards as active. Then, you cannot play Character cards with a base cost of 7 or more during this turn.",
+  "block_number": 3,
+  "types": [
+    "Muggy Kingdom",
+    "The Seven Warlords of the Sea"
+  ],
+  "effect": "[Blocker]<br>[On Play] Set up to 4 of your DON!! cards as active. Then, you cannot play Character cards with a base cost of 7 or more during this turn.",
   "trigger": null
 }

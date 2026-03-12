@@ -1,20 +1,21 @@
 {
   "id": "OP14-020_p1",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Dracule Mihawk",
   "rarity": "Leader",
   "category": "Leader",
-  "img_url": "../images/cardlist/card/OP14-020_p1.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-020_p1.png",
-  "colors": [
-    "Green"
-  ],
+  "img_url": "../images/cardlist/card/OP14-020_p1.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-020_p1.png?251219",
   "cost": 5,
   "attributes": [
     "Slash"
   ],
   "power": 5000,
   "counter": null,
+  "colors": [
+    "Green"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea"
   ],

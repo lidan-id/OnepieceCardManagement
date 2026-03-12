@@ -1,20 +1,21 @@
 {
   "id": "OP14-009_p1",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Trafalgar Law",
   "rarity": "SuperRare",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-009_p1.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-009_p1.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-009_p1.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-009_p1.png?251219",
   "cost": 9,
   "attributes": [
     "Slash"
   ],
   "power": 10000,
   "counter": null,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Supernovas",

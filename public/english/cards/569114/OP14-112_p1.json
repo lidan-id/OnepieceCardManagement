@@ -1,20 +1,21 @@
 {
   "id": "OP14-112_p1",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Boa Hancock",
   "rarity": "SuperRare",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-112_p1.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-112_p1.png",
-  "colors": [
-    "Yellow"
-  ],
+  "img_url": "../images/cardlist/card/OP14-112_p1.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-112_p1.png?251219",
   "cost": 9,
   "attributes": [
     "Special"
   ],
   "power": 10000,
   "counter": null,
+  "colors": [
+    "Yellow"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Kuja Pirates"

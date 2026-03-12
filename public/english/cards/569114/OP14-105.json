@@ -1,14 +1,11 @@
 {
   "id": "OP14-105",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Gorgon Sisters",
   "rarity": "Uncommon",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-105.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-105.png",
-  "colors": [
-    "Yellow"
-  ],
+  "img_url": "../images/cardlist/card/OP14-105.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-105.png?251219",
   "cost": 6,
   "attributes": [
     "Slash",
@@ -16,6 +13,10 @@
   ],
   "power": 5000,
   "counter": 2000,
+  "colors": [
+    "Yellow"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Kuja Pirates"

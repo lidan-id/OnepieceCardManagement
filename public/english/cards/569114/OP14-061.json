@@ -1,20 +1,21 @@
 {
   "id": "OP14-061",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Vergo",
   "rarity": "Rare",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-061.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-061.png",
-  "colors": [
-    "Purple"
-  ],
+  "img_url": "../images/cardlist/card/OP14-061.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-061.png?251219",
   "cost": 5,
   "attributes": [
     "Strike"
   ],
   "power": 7000,
   "counter": null,
+  "colors": [
+    "Purple"
+  ],
+  "block_number": 4,
   "types": [
     "Punk Hazard",
     "Navy",

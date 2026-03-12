@@ -1,18 +1,19 @@
 {
   "id": "OP14-018",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Time for the Counterattack",
   "rarity": "Rare",
   "category": "Event",
-  "img_url": "../images/cardlist/card/OP14-018.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-018.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-018.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-018.png?251219",
   "cost": 1,
   "attributes": [],
   "power": null,
   "counter": null,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "The Seven Warlords of the Sea",
     "Supernovas",

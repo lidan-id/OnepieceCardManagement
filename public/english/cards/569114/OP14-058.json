@@ -1,18 +1,19 @@
 {
   "id": "OP14-058",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Ocean Current Shoulder Throw",
   "rarity": "Rare",
   "category": "Event",
-  "img_url": "../images/cardlist/card/OP14-058.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-058.png",
-  "colors": [
-    "Blue"
-  ],
+  "img_url": "../images/cardlist/card/OP14-058.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-058.png?251219",
   "cost": 2,
   "attributes": [],
   "power": null,
   "counter": null,
+  "colors": [
+    "Blue"
+  ],
+  "block_number": 4,
   "types": [
     "Fish-Man",
     "The Seven Warlords of the Sea",

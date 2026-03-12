@@ -1,20 +1,21 @@
 {
   "id": "OP14-015",
-  "pack_id": "OP14-EB04",
+  "pack_id": "569114",
   "name": "Roronoa Zoro",
   "rarity": "Rare",
   "category": "Character",
-  "img_url": "../images/cardlist/card/OP14-015.png",
-  "img_full_url": "https://en.onepiece-cardgame.com/images/cardlist/card/OP14-015.png",
-  "colors": [
-    "Red"
-  ],
+  "img_url": "../images/cardlist/card/OP14-015.png?251219",
+  "img_full_url": "https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP14-015.png?251219",
   "cost": 7,
   "attributes": [
     "Slash"
   ],
   "power": 8000,
   "counter": null,
+  "colors": [
+    "Red"
+  ],
+  "block_number": 4,
   "types": [
     "Supernovas",
     "Straw Hat Crew"
