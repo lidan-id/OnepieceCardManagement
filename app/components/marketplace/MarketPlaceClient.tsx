@@ -263,10 +263,23 @@ const MarketPlaceClient = ({
     try {
       const response = await fetch(`/api/scrape-price?id=${cardId}`);
       const priceData = await response.json();
-      setMarketPrices({
-        lowest: priceData.lowestPrice,
-        highest: priceData.highestPrice,
-      });
+      if (
+        priceData.success &&
+        priceData.lowest !== undefined &&
+        priceData.highest !== undefined
+      ) {
+        setMarketPrices({
+          lowest: priceData.lowest,
+          highest: priceData.highest,
+        });
+      } else {
+        setMarketPrices({ lowest: null, highest: null });
+        showAlertCard(
+          "red",
+          "Market Error",
+          priceData.error || "Failed to fetch price",
+        );
+      }
       console.log("Fetched price data:", priceData);
     } catch (error) {
       showAlertCard(
@@ -619,7 +632,7 @@ const MarketPlaceClient = ({
                           Lowest Price
                         </span>
                         <span className="text-lg text-green-400 font-extrabold group-hover:text-green-300">
-                          ¥ {marketPrices.lowest.toLocaleString()}
+                          ¥ {marketPrices.lowest.toLocaleString() ?? 0}
                         </span>
                       </div>
                       <div
@@ -631,7 +644,7 @@ const MarketPlaceClient = ({
                           Highest Price
                         </span>
                         <span className="text-lg text-red-400 font-extrabold group-hover:text-red-300">
-                          ¥ {marketPrices.highest.toLocaleString()}
+                          ¥ {marketPrices.highest.toLocaleString() ?? 0}
                         </span>
                       </div>
                     </div>

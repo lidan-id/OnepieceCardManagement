@@ -21,7 +21,10 @@ export async function GET(request: Request) {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,id;q=0.8",
+        Referer: "https://yuyu-tei.jp/",
       },
       cache: "no-store", // Jangan simpan cache agar harga selalu realtime
     });
@@ -31,6 +34,15 @@ export async function GET(request: Request) {
     }
 
     const html = await response.text();
+
+    if (html.includes("Cloudflare") || html.includes("captcha")) {
+      console.log("[SCRAPER] TERKENA BLOKIR CLOUDFLARE/BOT PROTECTION!");
+      return NextResponse.json(
+        { success: false, error: "Terblokir oleh proteksi website" },
+        { status: 403 },
+      );
+    }
+
     const $ = cheerio.load(html);
 
     // 1. Siapkan array untuk menampung semua harga yang ditemukan
