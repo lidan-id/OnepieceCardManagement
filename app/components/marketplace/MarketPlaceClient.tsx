@@ -16,6 +16,7 @@ import AlertCard from "../ui/AlertCard";
 import { Marketplace } from "@/app/types/Marketplace";
 import { useRouter } from "next/navigation";
 import { decodeHTMLEntities } from "@/app/helper/helper";
+import PreviewCard from "../global/PreviewCard";
 
 const MarketPlaceClient = ({
   userData,
@@ -110,7 +111,7 @@ const MarketPlaceClient = ({
 
   // --- STATES ---
   const [isShowCard, setIsShowCard] = useState(false);
-  const [showCardUrl, setShowCardUrl] = useState("");
+  const [showCardId, setShowCardId] = useState("");
 
   const [isShowRemoveModal, setIsShowRemoveModal] = useState(false);
   const [cardToRemove, setCardToRemove] = useState<Marketplace | null>(null);
@@ -331,7 +332,7 @@ const MarketPlaceClient = ({
                         className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
                         onClick={() => {
                           setIsShowCard(true);
-                          setShowCardUrl(card.img_full_url);
+                          setShowCardId(card.id);
                         }}
                       >
                         {card.img_full_url ? (
@@ -412,7 +413,7 @@ const MarketPlaceClient = ({
                         className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
                         onClick={() => {
                           setIsShowCard(true);
-                          setShowCardUrl(marketItem.inventory.cardImgUrl);
+                          setShowCardId(marketItem.inventory.cardId);
                         }}
                       >
                         <img
@@ -481,27 +482,7 @@ const MarketPlaceClient = ({
 
       {/* 1. Image Preview */}
       {isShowCard && (
-        <div
-          onClick={() => setIsShowCard(false)}
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-        >
-          <div
-            className="relative max-w-sm w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={showCardUrl}
-              alt="Preview"
-              className="w-full rounded-2xl shadow-2xl border border-slate-700"
-            />
-            <button
-              onClick={() => setIsShowCard(false)}
-              className="absolute -top-12 right-0 text-white hover:text-amber-500"
-            >
-              <X className="w-8 h-8" />
-            </button>
-          </div>
-        </div>
+        <PreviewCard setIsShowCard={setIsShowCard} cardId={showCardId} />
       )}
 
       {/* 2. System Purchase Modal */}

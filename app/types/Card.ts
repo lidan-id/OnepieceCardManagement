@@ -10,10 +10,10 @@ interface CardDetailProps {
   cost: number;
   attributes: string[];
   power: number;
-  counter?: number;
+  counter: number | null;
   types: string[];
   effect: string;
-  trigger?: string;
+  trigger: string | null;
 }
 
 interface StarterDeckDetailProps {
@@ -29,10 +29,10 @@ interface StarterDeckDetailProps {
   cost: number;
   attributes: string[];
   power: number;
-  counter?: number;
+  counter: number | null;
   types: string[];
   effect: string;
-  trigger?: string;
+  trigger: string | null;
 }
 
 export type { CardDetailProps, StarterDeckDetailProps };

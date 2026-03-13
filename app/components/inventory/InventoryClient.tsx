@@ -16,6 +16,7 @@ import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "@heroui/tooltip";
 import { decodeHTMLEntities } from "@/app/helper/helper";
+import PreviewCard from "../global/PreviewCard";
 
 interface UserInventory {
   id: string;
@@ -60,7 +61,7 @@ const InventoryClient = ({
   const [searchText, setSearchText] = useState("");
 
   const [isShowCard, setIsShowCard] = useState(false);
-  const [showCardUrl, setShowCardUrl] = useState("");
+  const [showCardId, setShowCardId] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
 
   const [isShowSellDetailMarket, setIsShowSellDetailMarket] = useState(false);
@@ -285,7 +286,7 @@ const InventoryClient = ({
                     className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
                     onClick={() => {
                       setIsShowCard(true);
-                      setShowCardUrl(card.cardImgUrl);
+                      setShowCardId(card.cardId);
                     }}
                   >
                     <img
@@ -376,7 +377,7 @@ const InventoryClient = ({
                     className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
                     onClick={() => {
                       setIsShowCard(true);
-                      setShowCardUrl(card.cardImgUrl);
+                      setShowCardId(card.cardId);
                     }}
                   >
                     <img
@@ -441,27 +442,7 @@ const InventoryClient = ({
 
       {/* 1. Image Preview Modal */}
       {isShowCard && (
-        <div
-          onClick={() => setIsShowCard(false)}
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-        >
-          <div
-            className="relative max-w-sm w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={showCardUrl}
-              alt="Card Preview"
-              className="w-full rounded-2xl shadow-2xl border border-slate-700"
-            />
-            <button
-              onClick={() => setIsShowCard(false)}
-              className="absolute -top-12 right-0 text-white hover:text-amber-500 transition-colors"
-            >
-              <X className="w-8 h-8" />
-            </button>
-          </div>
-        </div>
+        <PreviewCard setIsShowCard={setIsShowCard} cardId={showCardId} />
       )}
 
       {/* 2. Marketplace Sell Modal */}
