@@ -49,7 +49,7 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
     if (cardId) {
       fetchCardData();
     }
-  }, [cardId]); // Jalankan ulang jika cardId berubah
+  }, [cardId]);
 
   const StatLabel = ({ icon: Icon, label }: { icon: any; label: string }) => (
     <div className="flex items-center gap-2 text-slate-500 font-medium text-[10px] uppercase tracking-wider mb-1">
@@ -191,6 +191,11 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
                       {line}
                     </p>
                   ))}
+                  {data.trigger && (
+                    <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mt-4">
+                      {data.trigger}
+                    </p>
+                  )}
                 </div>
               </div>
 

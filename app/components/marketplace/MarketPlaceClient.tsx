@@ -131,6 +131,7 @@ const MarketPlaceClient = ({
 
   // --- ACTIONS ---
   const openSystemBuyModal = (card: CardDetailProps) => {
+    setMarketPrices({ lowest: null, highest: null });
     setShowDetailPurchase(card);
     setUnitPrice(0);
     setQuantity(1);
@@ -183,6 +184,7 @@ const MarketPlaceClient = ({
 
   const handleBuyCard = async () => {
     if (quantity <= 0) return;
+
     try {
       setLoading(true);
       const response = await fetch("api/user-inventory", {
@@ -245,6 +247,36 @@ const MarketPlaceClient = ({
       showAlertCard("red", "Error", "Purchase failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+  const [marketPrices, setMarketPrices] = useState<{
+    lowest: number | null;
+    highest: number | null;
+  }>({ lowest: null, highest: null });
+
+  const handleFindPrice = async () => {
+    if (!ShowDetailPurchase) return;
+    setIsFetchingPrice(true);
+    const cardId = ShowDetailPurchase.id.split("_")[0];
+    try {
+      const response = await fetch(`/api/scrape-price?id=${cardId}`);
+      const priceData = await response.json();
+      setMarketPrices({
+        lowest: priceData.lowestPrice,
+        highest: priceData.highestPrice,
+      });
+      console.log("Fetched price data:", priceData);
+    } catch (error) {
+      showAlertCard(
+        "red",
+        "Error",
+        "Failed to fetch price data. Please try again later.",
+      );
+      console.error("Failed to fetch price data:", error);
+    } finally {
+      setIsFetchingPrice(false);
     }
   };
 
@@ -489,13 +521,18 @@ const MarketPlaceClient = ({
       {isShowDetailPurchase && ShowDetailPurchase && (
         <div
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
-          onClick={() => setIsShowDetailPurchase(false)}
+          onClick={() => {
+            setIsShowDetailPurchase(false);
+            setMarketPrices({ lowest: null, highest: null });
+          }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
+            // max-w-md diubah jadi max-w-3xl agar lebih lebar, dan ditambahkan max-h-[95vh] flex flex-col agar footer tidak terpotong
+            className="bg-slate-900 w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
           >
-            <div className="p-5 border-b border-slate-800 flex justify-between items-start">
+            {/* HEADER (Sticky di atas) */}
+            <div className="p-5 border-b border-slate-800 flex justify-between items-start shrink-0">
               <div>
                 <h3 className="text-lg font-bold text-white">System Shop</h3>
                 <p className="text-xs text-slate-400">
@@ -503,91 +540,167 @@ const MarketPlaceClient = ({
                 </p>
               </div>
               <button
-                onClick={() => setIsShowDetailPurchase(false)}
+                onClick={() => {
+                  setIsShowDetailPurchase(false);
+                  setMarketPrices({ lowest: null, highest: null });
+                }}
                 className="text-slate-500 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* Card Info */}
-              <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
-                <img
-                  src={ShowDetailPurchase.img_full_url}
-                  className="w-16 h-auto rounded-md"
-                  alt=""
-                />
-                <div>
-                  <h4 className="font-bold text-slate-200">
+            {/* BODY (Dibagi jadi 2 Kolom) */}
+            <div className="p-6 overflow-y-auto custom-scrollbar flex flex-col md:flex-row gap-8">
+              {/* --- KOLOM KIRI (Info Kartu & Peringatan) --- */}
+              <div className="w-full md:w-5/12 flex flex-col gap-4 shrink-0">
+                <div className="relative aspect-3/4 w-full max-w-50 mx-auto rounded-xl overflow-hidden border border-slate-700 shadow-lg">
+                  <img
+                    src={ShowDetailPurchase.img_full_url}
+                    className="w-full h-full object-cover"
+                    alt={decodeHTMLEntities(ShowDetailPurchase.name)}
+                  />
+                </div>
+                <div className="text-center">
+                  <h4 className="font-bold text-slate-200 text-lg">
                     {decodeHTMLEntities(ShowDetailPurchase.name)}
                   </h4>
-                  <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded mt-1 inline-block">
+                  <span className="text-[10px] bg-slate-800 text-slate-400 px-3 py-1 rounded-full mt-1.5 inline-block font-semibold uppercase tracking-wider border border-slate-700">
                     {ShowDetailPurchase.category}
                   </span>
                 </div>
-              </div>
 
-              <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg flex gap-3 items-start">
-                <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <h5 className="text-xs font-bold text-amber-500">
-                    Honesty-Based System
-                  </h5>
-                  <p className="text-[11px] text-amber-500/80 leading-relaxed">
-                    Since this is a manual shop simulation, please enter the
-                    price agreed upon by the community rules.
-                  </p>
+                <div className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-xl flex gap-3 items-start mt-auto">
+                  <Info className="w-5 h-5 text-amber-500 shrink-0" />
+                  <div>
+                    <h5 className="text-xs font-bold text-amber-500 mb-1">
+                      Honesty-Based System
+                    </h5>
+                    <p className="text-[11px] text-amber-500/80 leading-relaxed">
+                      Since this is a manual shop, please enter the agreed
+                      community price.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400 uppercase">
-                    Unit Price
-                  </label>
-                  <input
-                    type="number"
-                    value={unitPrice}
-                    onChange={(e) => setUnitPrice(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-400 uppercase">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-              </div>
+              {/* --- KOLOM KANAN (Harga & Input) --- */}
+              <div className="w-full md:w-7/12 flex flex-col justify-center space-y-6">
+                {/* Fitur Find Price */}
+                <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800/50 pb-3">
+                    <span className="text-xs font-bold text-slate-400 uppercase">
+                      Market Reference
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleFindPrice}
+                      disabled={isFetchingPrice}
+                      className="text-xs bg-slate-800 hover:bg-slate-700 text-amber-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 font-bold border border-slate-700 hover:border-amber-500/50"
+                    >
+                      {isFetchingPrice ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Search className="w-3.5 h-3.5" />
+                      )}
+                      {isFetchingPrice ? "Searching..." : "Find Price"}
+                    </button>
+                  </div>
 
-              <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-                <span className="text-sm text-slate-400">Total Cost:</span>
-                <span className="text-xl font-bold text-amber-500">
-                  ¥ {(unitPrice * quantity).toLocaleString()}
-                </span>
+                  {marketPrices.lowest !== null &&
+                  marketPrices.highest !== null ? (
+                    <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-300">
+                      <div
+                        onClick={() => setUnitPrice(marketPrices.lowest!)}
+                        className="bg-green-950/20 border border-green-900/50 hover:bg-green-900/40 hover:border-green-500/50 cursor-pointer p-3 rounded-xl flex flex-col items-center justify-center transition-all group"
+                        title="Click to set lowest price"
+                      >
+                        <span className="text-[10px] text-green-500 uppercase font-bold mb-1 group-hover:text-green-400">
+                          Lowest Price
+                        </span>
+                        <span className="text-lg text-green-400 font-extrabold group-hover:text-green-300">
+                          ¥ {marketPrices.lowest.toLocaleString()}
+                        </span>
+                      </div>
+                      <div
+                        onClick={() => setUnitPrice(marketPrices.highest!)}
+                        className="bg-red-950/20 border border-red-900/50 hover:bg-red-900/40 hover:border-red-500/50 cursor-pointer p-3 rounded-xl flex flex-col items-center justify-center transition-all group"
+                        title="Click to set highest price"
+                      >
+                        <span className="text-[10px] text-red-500 uppercase font-bold mb-1 group-hover:text-red-400">
+                          Highest Price
+                        </span>
+                        <span className="text-lg text-red-400 font-extrabold group-hover:text-red-300">
+                          ¥ {marketPrices.highest.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-xs text-slate-600 italic">
+                      Click "Find Price" to scan market values.
+                    </div>
+                  )}
+                </div>
+
+                {/* Form Input */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Unit Price (¥)
+                    </label>
+                    <input
+                      type="number"
+                      value={unitPrice}
+                      onChange={(e) => setUnitPrice(Number(e.target.value))}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Number(e.target.value))}
+                      min="1"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Total */}
+                <div className="flex justify-between items-end pt-4 border-t border-slate-800">
+                  <span className="text-sm font-semibold text-slate-400">
+                    Total Calculation:
+                  </span>
+                  <div className="text-right">
+                    <span className="text-3xl font-black text-amber-500">
+                      ¥ {(unitPrice * quantity).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
+            {/* FOOTER (Sticky di Bawah) */}
+            <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900 shrink-0">
               <button
-                onClick={() => setIsShowDetailPurchase(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800"
+                onClick={() => {
+                  setIsShowDetailPurchase(false);
+                  setMarketPrices({ lowest: null, highest: null });
+                }}
+                className="flex-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleBuyCard}
-                disabled={loading}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 flex justify-center items-center gap-2"
+                disabled={loading || unitPrice <= 0 || quantity <= 0}
+                className="flex-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)]"
               >
                 {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   "Confirm Purchase"
                 )}
