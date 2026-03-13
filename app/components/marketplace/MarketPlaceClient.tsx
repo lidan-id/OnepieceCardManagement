@@ -263,14 +263,15 @@ const MarketPlaceClient = ({
     try {
       const response = await fetch(`/api/scrape-price?id=${cardId}`);
       const priceData = await response.json();
+      console.log("Raw response from price API:", priceData);
       if (
         priceData.success &&
-        priceData.lowest !== undefined &&
-        priceData.highest !== undefined
+        priceData.lowestPrice !== undefined &&
+        priceData.highestPrice !== undefined
       ) {
         setMarketPrices({
-          lowest: priceData.lowest,
-          highest: priceData.highest,
+          lowest: priceData.lowestPrice,
+          highest: priceData.highestPrice,
         });
       } else {
         setMarketPrices({ lowest: null, highest: null });

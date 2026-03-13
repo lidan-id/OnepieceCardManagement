@@ -13,11 +13,13 @@ export async function GET(request: Request) {
   }
 
   try {
+    const API_KEY = process.env.SCRAPER_API_KEY;
     const targetUrl = `https://yuyu-tei.jp/sell/opc/s/search?search_word=${encodeURIComponent(
       cardId,
     )}`;
+    const scraperUrl = `http://api.scraperapi.com?api_key=${API_KEY}&url=${encodeURIComponent(targetUrl)}`;
 
-    const response = await fetch(targetUrl, {
+    const response = await fetch(scraperUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
