@@ -15,7 +15,7 @@ import DropDown from "../ui/DropDown";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "@heroui/tooltip";
-import { decodeHTMLEntities } from "@/app/helper/helper";
+import { decodeHTMLEntities, getAsiaImageUrl } from "@/app/helper/helper";
 import PreviewCard from "../global/PreviewCard";
 
 interface UserInventory {
@@ -290,7 +290,7 @@ const InventoryClient = ({
                     }}
                   >
                     <img
-                      src={card.cardImgUrl}
+                      src={getAsiaImageUrl(card.cardImgUrl)}
                       alt={decodeHTMLEntities(card.cardName)}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -381,7 +381,7 @@ const InventoryClient = ({
                     }}
                   >
                     <img
-                      src={card.cardImgUrl}
+                      src={getAsiaImageUrl(card.cardImgUrl)}
                       alt={decodeHTMLEntities(card.cardName)}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -534,7 +534,7 @@ const SellModal = ({
           {/* Card Info */}
           <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
             <img
-              src={card.cardImgUrl}
+              src={getAsiaImageUrl(card.cardImgUrl)}
               className="w-16 h-auto rounded-md"
               alt=""
             />

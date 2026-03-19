@@ -15,7 +15,7 @@ import { Virtuoso } from "react-virtuoso";
 import AlertCard from "../ui/AlertCard";
 import { Marketplace } from "@/app/types/Marketplace";
 import { useRouter } from "next/navigation";
-import { decodeHTMLEntities } from "@/app/helper/helper";
+import { decodeHTMLEntities, getAsiaImageUrl } from "@/app/helper/helper";
 import PreviewCard from "../global/PreviewCard";
 
 const MarketPlaceClient = ({
@@ -383,7 +383,7 @@ const MarketPlaceClient = ({
                       >
                         {card.img_full_url ? (
                           <img
-                            src={card.img_full_url}
+                            src={getAsiaImageUrl(card.img_full_url)}
                             alt={decodeHTMLEntities(card.name)}
                             loading="lazy"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -463,7 +463,7 @@ const MarketPlaceClient = ({
                         }}
                       >
                         <img
-                          src={marketItem.inventory.cardImgUrl}
+                          src={getAsiaImageUrl(marketItem.inventory.cardImgUrl)}
                           alt={decodeHTMLEntities(
                             marketItem.inventory.cardName,
                           )}
@@ -570,7 +570,7 @@ const MarketPlaceClient = ({
               <div className="w-full md:w-5/12 flex flex-col gap-4 shrink-0">
                 <div className="relative aspect-3/4 w-full max-w-50 mx-auto rounded-xl overflow-hidden border border-slate-700 shadow-lg">
                   <img
-                    src={ShowDetailPurchase.img_full_url}
+                    src={getAsiaImageUrl(ShowDetailPurchase.img_full_url)}
                     className="w-full h-full object-cover"
                     alt={decodeHTMLEntities(ShowDetailPurchase.name)}
                   />
@@ -755,7 +755,9 @@ const MarketPlaceClient = ({
               {/* Card Info */}
               <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
                 <img
-                  src={ShowDetailMarketplacePurchase.inventory.cardImgUrl}
+                  src={getAsiaImageUrl(
+                    ShowDetailMarketplacePurchase.inventory.cardImgUrl,
+                  )}
                   className="w-16 h-auto rounded-md"
                   alt=""
                 />
@@ -845,7 +847,7 @@ const MarketPlaceClient = ({
             <div className="p-6 text-center space-y-4">
               <div className="mx-auto w-20 h-28 bg-slate-800 rounded-lg overflow-hidden border border-slate-700 mb-2">
                 <img
-                  src={cardToRemove.inventory.cardImgUrl}
+                  src={getAsiaImageUrl(cardToRemove.inventory.cardImgUrl)}
                   className="w-full h-full object-cover opacity-50 grayscale"
                   alt=""
                 />

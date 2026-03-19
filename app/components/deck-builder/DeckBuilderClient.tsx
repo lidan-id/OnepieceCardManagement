@@ -17,6 +17,7 @@ import {
 import React, { useEffect, useState } from "react";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
+import { getAsiaImageUrl } from "@/app/helper/helper";
 
 interface UserInventory {
   id: string;
@@ -457,7 +458,7 @@ const DeckBuilderClient = ({
                   >
                     <div className="relative aspect-3/4 rounded-lg overflow-hidden border border-slate-800 group-hover:border-amber-500/50 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all">
                       <img
-                        src={card.cardImgUrl}
+                        src={getAsiaImageUrl(card.cardImgUrl)}
                         alt={card.cardName}
                         className="w-full h-full object-cover"
                       />
@@ -573,7 +574,7 @@ const DeckBuilderClient = ({
                       className={`relative aspect-3/4 rounded-lg overflow-hidden border transition-all ${card.cardCategory === "Leader" ? "border-amber-500 ring-2 ring-amber-500/20" : "border-slate-700 hover:border-red-500/50"}`}
                     >
                       <img
-                        src={card.cardImgUrl}
+                        src={getAsiaImageUrl(card.cardImgUrl)}
                         alt={card.cardName}
                         className="w-full h-full object-cover"
                       />

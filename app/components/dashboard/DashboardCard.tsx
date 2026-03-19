@@ -1,3 +1,4 @@
+import { getAsiaImageUrl } from "@/app/helper/helper";
 import { UserDeck } from "@/app/types/Deck";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import React from "react";
@@ -59,7 +60,7 @@ const DashboardCard = ({
       {/* Image Container with Overlay Effect */}
       <div className="relative aspect-3/4 overflow-hidden bg-slate-800">
         <img
-          src={deck.leaderCardImg}
+          src={getAsiaImageUrl(deck.leaderCardImg)}
           alt={deck.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
