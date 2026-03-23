@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     const packDir = path.join(
       process.cwd(),
       "public",
-      "english",
+      "english-asia",
       "cards",
       packId,
     );

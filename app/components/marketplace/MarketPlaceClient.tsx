@@ -9,6 +9,8 @@ import {
   Tag,
   Loader2,
   Info,
+  ChevronDown,
+  Filter,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Virtuoso } from "react-virtuoso";
@@ -17,18 +19,23 @@ import { Marketplace } from "@/app/types/Marketplace";
 import { useRouter } from "next/navigation";
 import { decodeHTMLEntities, getAsiaImageUrl } from "@/app/helper/helper";
 import PreviewCard from "../global/PreviewCard";
+import DropDown from "../ui/DropDown";
+import { PackInfo } from "@/app/types/PackInfo";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MarketPlaceClient = ({
   userData,
-  data,
+  allPacks,
+  cardData,
   marketplaceData,
 }: {
   userData: { id: string; username: string; email: string } | null;
-  data: CardDetailProps[];
+  allPacks: PackInfo[];
+  cardData: CardDetailProps[];
   marketplaceData: Marketplace[];
 }) => {
   const router = useRouter();
-
+  const [data, setData] = useState<CardDetailProps[]>(cardData);
   const [showAlert, setShowAlert] = useState(false);
   const [alertAttribut, setAlertAttribut] = useState({
     color: "",
@@ -69,20 +76,18 @@ const MarketPlaceClient = ({
   }, []);
 
   // --- FILTER LOGIC ---
-  const filteredData = useMemo(() => {
-    if (!searchValue) return data;
-    const lowerSearch = searchValue.toLowerCase();
-    return data.filter(
-      (card) =>
-        decodeHTMLEntities(card.name).toLowerCase().includes(lowerSearch) ||
-        card.id.toLowerCase().includes(lowerSearch),
+  const filterData = async () => {
+    const response = await fetch(
+      `/api/filter-packs?packId=${selectedPack.id}&color=${selectedColor}&search=${searchValue}`,
     );
-  }, [data, searchValue]);
+    const result = await response.json();
+
+    setData(result.data);
+  };
 
   const filteredMarketplaceData = useMemo(() => {
     if (!searchValue) return marketplaceData;
     const lowerSearch = searchValue.toLowerCase();
-    console.log(marketplaceData);
     return marketplaceData.filter(
       (card) =>
         decodeHTMLEntities(card.inventory.cardName)
@@ -95,11 +100,11 @@ const MarketPlaceClient = ({
   // --- ROW GENERATION FOR VIRTUOSO ---
   const rows = useMemo(() => {
     const result = [];
-    for (let i = 0; i < filteredData.length; i += ITEMS_PER_ROW) {
-      result.push(filteredData.slice(i, i + ITEMS_PER_ROW));
+    for (let i = 0; i < data.length; i += ITEMS_PER_ROW) {
+      result.push(data.slice(i, i + ITEMS_PER_ROW));
     }
     return result;
-  }, [filteredData, ITEMS_PER_ROW]);
+  }, [data, ITEMS_PER_ROW]);
 
   const rowsMarketplace = useMemo(() => {
     const result = [];
@@ -110,6 +115,8 @@ const MarketPlaceClient = ({
   }, [filteredMarketplaceData, ITEMS_PER_ROW]);
 
   // --- STATES ---
+  const [isShowHeader, setIsShowHeader] = useState(true);
+
   const [isShowCard, setIsShowCard] = useState(false);
   const [showCardId, setShowCardId] = useState("");
 
@@ -128,6 +135,22 @@ const MarketPlaceClient = ({
   const [unitPrice, setUnitPrice] = useState(0);
   const [quantity, setQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const [selectedPack, setSelectedPack] = useState<PackInfo>(allPacks[0]);
+  const [selectedColor, setSelectedColor] = useState("All Colors");
+
+  const [isPackDropdownOpen, setIsPackDropdownOpen] = useState(false);
+  const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
+
+  const COLOR_OPTIONS = [
+    "All Colors",
+    "Red",
+    "Green",
+    "Blue",
+    "Purple",
+    "Yellow",
+    "Black",
+  ];
 
   // --- ACTIONS ---
   const openSystemBuyModal = (card: CardDetailProps) => {
@@ -263,7 +286,6 @@ const MarketPlaceClient = ({
     try {
       const response = await fetch(`/api/scrape-price?id=${cardId}`);
       const priceData = await response.json();
-      console.log("Raw response from price API:", priceData);
       if (
         priceData.success &&
         priceData.lowestPrice !== undefined &&
@@ -281,7 +303,6 @@ const MarketPlaceClient = ({
           priceData.error || "Failed to fetch price",
         );
       }
-      console.log("Fetched price data:", priceData);
     } catch (error) {
       showAlertCard(
         "red",
@@ -297,61 +318,157 @@ const MarketPlaceClient = ({
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-200">
       {/* --- HEADER --- */}
-      <div className="flex-none p-6 md:p-8 space-y-6 border-b border-slate-800">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-              <Store className="w-8 h-8 text-amber-500" />
-              Marketplace
-            </h1>
-            <p className="text-slate-400 mt-2 text-sm">
-              Acquire new cards from the system or trade with other captains.
-            </p>
-          </div>
+      <AnimatePresence>
+        {isShowHeader && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="flex-none border-b border-slate-800"
+          >
+            <div className="p-6 md:p-8 space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div>
+                  <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
+                    <Store className="w-8 h-8 text-amber-500" />
+                    Marketplace
+                  </h1>
+                  <p className="text-slate-400 mt-2 text-sm">
+                    Acquire new cards from the system or trade with other
+                    captains.
+                  </p>
+                </div>
 
-          {/* Tab Switcher */}
-          <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
-            <button
-              onClick={() => setShopIndex(0)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                shopIndex === 0
-                  ? "bg-amber-500 text-slate-900 shadow-lg"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              }`}
-            >
-              <ShoppingBag className="w-4 h-4" />
-              System Shop
-            </button>
-            <button
-              onClick={() => setShopIndex(1)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                shopIndex === 1
-                  ? "bg-amber-500 text-slate-900 shadow-lg"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              User Market
-            </button>
-          </div>
-        </div>
+                {/* Tab Switcher */}
+                <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
+                  <button
+                    onClick={() => setShopIndex(0)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                      shopIndex === 0
+                        ? "bg-amber-500 text-slate-900 shadow-lg"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    System Shop
+                  </button>
+                  <button
+                    onClick={() => setShopIndex(1)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                      shopIndex === 1
+                        ? "bg-amber-500 text-slate-900 shadow-lg"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    User Market
+                  </button>
+                </div>
+              </div>
 
-        {/* Search Bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-          <input
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            type="text"
-            placeholder="Search for cards by name or ID..."
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-          />
-        </div>
-      </div>
+              {/* Search Bar */}
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                <input
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  type="text"
+                  placeholder="Search for cards by name or ID..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                />
+              </div>
+
+              {/* Dropdown filter */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                {/* Filter Icon Indicator (Desktop only) */}
+                <div className="hidden lg:flex items-center justify-center px-2 text-slate-500">
+                  <Filter className="w-4 h-4" />
+                </div>
+
+                {/* Pack Dropdown */}
+                <div
+                  onClick={() => {
+                    setIsPackDropdownOpen(!isPackDropdownOpen);
+                  }}
+                  className="flex relative items-center gap-2 border border-slate-700 p-3 rounded-xl w-full sm:w-auto text-xs cursor-pointer"
+                >
+                  <div>{selectedPack.raw_title}</div>
+                  <ChevronDown className="w-4 h-4" />
+                  <AnimatePresence>
+                    {isPackDropdownOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="absolute mt-2 inset-x-0 top-full bg-slate-900 border max-h-100 z-10000 border-slate-700 rounded-xl overflow-auto custom-scrollbar"
+                      >
+                        {allPacks.map((pack) => (
+                          <div
+                            onClick={() => {
+                              setSelectedPack(pack);
+                              setIsPackDropdownOpen(false);
+                            }}
+                            key={pack.id}
+                            className="px-3 py-2 hover:bg-slate-800 cursor-pointer "
+                          >
+                            {pack.raw_title}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Color Dropdown */}
+                <div
+                  onClick={() => {
+                    setIsColorDropdownOpen(!isColorDropdownOpen);
+                  }}
+                  className="flex relative items-center gap-2 border border-slate-700 p-3 rounded-xl w-full sm:w-auto text-xs cursor-pointer"
+                >
+                  <div>{selectedColor}</div>
+                  <ChevronDown className="w-4 h-4" />
+                  <AnimatePresence>
+                    {isColorDropdownOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="absolute mt-2 inset-x-0 top-full bg-slate-900 border z-10000 max-h-100 border-slate-700 rounded-xl overflow-auto custom-scrollbar"
+                      >
+                        {COLOR_OPTIONS.map((color, index) => (
+                          <div
+                            onClick={() => {
+                              setSelectedColor(color);
+                              setIsColorDropdownOpen(false);
+                            }}
+                            key={index}
+                            className="px-3 py-2 hover:bg-slate-800 cursor-pointer "
+                          >
+                            {color}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div
+                  onClick={filterData}
+                  className="flex items-center text-xs border rounded-xl p-3 border-amber-500 bg-amber-500 text-black gap-2 cursor-pointer hover:bg-amber-400"
+                >
+                  <Search className="w-3 h-3" /> Search
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* --- LIST SECTION (Virtuoso) --- */}
       <div className="flex-1 bg-slate-950 p-4">
-        {/* SYSTEM SHOP VIEW */}
         {shopIndex === 0 && (
           <Virtuoso
             style={{ height: "100%" }}
@@ -373,7 +490,6 @@ const MarketPlaceClient = ({
                       key={card.id}
                       className="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all flex flex-col"
                     >
-                      {/* Image */}
                       <div
                         className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
                         onClick={() => {
@@ -393,13 +509,11 @@ const MarketPlaceClient = ({
                             No Image
                           </div>
                         )}
-                        {/* Quick Badge */}
                         <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur text-[10px] text-slate-300 px-2 py-0.5 rounded border border-slate-700">
                           {card.id}
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className="p-3 flex flex-col flex-1 gap-2">
                         <div>
                           <h3
@@ -432,7 +546,6 @@ const MarketPlaceClient = ({
           />
         )}
 
-        {/* USER MARKETPLACE VIEW */}
         {shopIndex === 1 && (
           <Virtuoso
             style={{ height: "100%" }}
@@ -454,7 +567,6 @@ const MarketPlaceClient = ({
                       key={marketItem.id}
                       className="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all flex flex-col"
                     >
-                      {/* Image */}
                       <div
                         className="relative aspect-3/4 bg-slate-950 cursor-zoom-in overflow-hidden"
                         onClick={() => {
@@ -471,14 +583,12 @@ const MarketPlaceClient = ({
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
 
-                        {/* Price Tag */}
                         <div className="absolute bottom-0 right-0 bg-amber-500 text-slate-900 px-2 py-1 rounded-tl-lg font-bold text-xs flex items-center gap-1">
                           <Tag className="w-3 h-3" />
                           {marketItem.price.toLocaleString()}
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className="p-3 flex flex-col flex-1 gap-2 ">
                         <div>
                           <h3 className="text-sm font-bold text-white truncate">
@@ -523,8 +633,6 @@ const MarketPlaceClient = ({
           />
         )}
       </div>
-
-      {/* --- MODALS --- */}
 
       {/* 1. Image Preview */}
       {isShowCard && (
@@ -909,6 +1017,14 @@ const MarketPlaceClient = ({
           </div>
         </div>
       )}
+      <div
+        onClick={() => {
+          setIsShowHeader(!isShowHeader);
+        }}
+        className="absolute bottom-10 right-10 bg-slate-900 border border-slate-700 p-3 rounded-xl cursor-pointer hover:bg-slate-800 "
+      >
+        Toggle Header
+      </div>
     </div>
   );
 };

@@ -5,62 +5,11 @@ import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import path from "path";
 import { promises as fs } from "fs";
+import { PackInfo } from "@/app/types/PackInfo";
 
 const Marketplace = async () => {
-  const fileNames = [
-    "569001.json",
-    "569002.json",
-    "569003.json",
-    "569004.json",
-    "569005.json",
-    "569006.json",
-    "569007.json",
-    "569008.json",
-    "569009.json",
-    "569010.json",
-    "569011.json",
-    "569012.json",
-    "569013.json",
-    "569014.json",
-    "569015.json",
-    "569016.json",
-    "569017.json",
-    "569018.json",
-    "569019.json",
-    "569020.json",
-    "569021.json",
-    "569022.json",
-    "569023.json",
-    "569024.json",
-    "569025.json",
-    "569026.json",
-    "569027.json",
-    "569028.json",
-    "569029.json",
-    "569101.json",
-    "569102.json",
-    "569103.json",
-    "569104.json",
-    "569105.json",
-    "569106.json",
-    "569107.json",
-    "569108.json",
-    "569109.json",
-    "569110.json",
-    "569111.json",
-    "569112.json",
-    "569113.json",
-    "569114.json",
-    "569115.json",
-    "569201.json",
-    "569202.json",
-    "569203.json",
-    "569204.json",
-    "569301.json",
-    "569302.json",
-    "569801.json",
-    "569901.json",
-  ];
+  const fileName = "556001.json";
+
   let userData: TokenPayload | null = null;
   const cookieStore = await cookies();
   const token = cookieStore.get("authToken")?.value;
@@ -73,31 +22,43 @@ const Marketplace = async () => {
     }
   }
 
-  const data = await Promise.all(
-    fileNames.map(async (fileName) => {
-      const filePath = path.join(
-        process.cwd(),
-        "public",
-        "english",
-        "data",
-        fileName,
-      );
-
-      const fileContents = await fs.readFile(filePath, "utf8");
-      return JSON.parse(fileContents);
-    }),
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    "english-asia",
+    "data",
+    fileName,
   );
-
-  const allData = data.flat();
+  const fileContents = await fs.readFile(filePath, "utf8");
+  const data = JSON.parse(fileContents);
 
   const marketplace = await prisma.marketplace.findMany({
     include: { inventory: true },
     orderBy: { createdAt: "desc" },
   });
+
+  async function getPacks() {
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      "english-asia",
+      "packs.json",
+    );
+    const fileContent = await fs.readFile(filePath, "utf-8");
+    const allPacks = JSON.parse(fileContent) as Record<string, PackInfo>;
+
+    const arrayAllPacks = Object.values(allPacks);
+
+    return arrayAllPacks;
+  }
+
+  const allPacks = await getPacks();
+
   return (
     <MarketPlaceClient
       userData={userData}
-      data={allData}
+      allPacks={allPacks}
+      cardData={data}
       marketplaceData={marketplace}
     />
   );

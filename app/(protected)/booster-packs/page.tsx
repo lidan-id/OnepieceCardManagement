@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import BoosterPackClient from "@/app/components/booster-packs/BoosterPackClient";
+import { PackInfo } from "@/app/types/PackInfo";
 
 async function getUser() {
   const cookieStore = await cookies();
@@ -46,19 +47,25 @@ async function getUser() {
 }
 
 async function getPacks() {
-  const filePath = path.join(process.cwd(), "public", "english", "packs.json");
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    "english-asia",
+    "packs.json",
+  );
   const fileContent = fs.readFileSync(filePath, "utf-8");
-  const allPacks = JSON.parse(fileContent);
+  const allPacks = JSON.parse(fileContent) as Record<string, PackInfo>;
 
-  console.log(allPacks);
-  // Filter for booster packs
-  return allPacks.filter(
-    (pack: any) =>
+  const filteredPacks = Object.values(allPacks).filter((pack: PackInfo) => {
+    return (
       pack.title_parts &&
       (pack.title_parts.prefix === "BOOSTER PACK" ||
         pack.title_parts.prefix === "PREMIUM BOOSTER" ||
-        pack.title_parts.prefix === "EXTRA BOOSTER"),
-  );
+        pack.title_parts.prefix === "EXTRA BOOSTER")
+    );
+  });
+
+  return filteredPacks;
 }
 
 export default async function BoosterPacksPage() {

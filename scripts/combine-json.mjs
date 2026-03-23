@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const dataDir = path.join(process.cwd(), "public/english/data");
+const dataDir = path.join(process.cwd(), "public/english-asia/data");
 const outputDir = path.join(process.cwd(), "public/data");
 const outputFile = path.join(outputDir, "master-cards.json");
 

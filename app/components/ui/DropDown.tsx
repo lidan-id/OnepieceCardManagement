@@ -19,11 +19,11 @@ const DropDown = ({
       className="cursor-pointer relative border text-[11px] w-full justify-between p-1.5 border-gray-400 rounded-md flex gap-2 items-center"
     >
       <p>
-        {selectedItemIndex === -1 ? "All Colors" : listItem[selectedItemIndex]}
+        {selectedItemIndex === -1 ? listItem[0] : listItem[selectedItemIndex]}
       </p>
       <ChevronDown className="w-3 h-3" />
       {isOpen && (
-        <div className="absolute top-[110%] shadow-lg bg-slate-900 w-full left-0 rounded-md z-10000 p-1">
+        <div className="absolute top-[110%] shadow-lg bg-slate-900 w-full left-0 rounded-md z-10000 p-1 max-h-100 overflow-auto">
           {listItem.map((item, index) => (
             <div
               onClick={() => {
