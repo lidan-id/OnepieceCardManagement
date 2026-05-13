@@ -42,9 +42,9 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* --- DESKTOP SIDEBAR --- */}
+      {}
       <div className="hidden md:flex w-64 h-screen bg-slate-950 text-slate-300 flex-col fixed left-0 top-0 border-r border-slate-800 z-50 shadow-2xl">
-        {/* Logo Area */}
+        {}
         <div className="p-6 border-b border-slate-800/50">
           <Link href="/dashboard" className="flex items-center gap-3 group">
             <div className="bg-linear-to-br from-amber-400 to-orange-600 p-2.5 rounded-xl text-slate-900 shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-all duration-300">
@@ -61,7 +61,7 @@ export default function Sidebar() {
           </Link>
         </div>
 
-        {/* Navigation Links */}
+        {}
         <nav className="flex-1 px-4 space-y-2 mt-6 overflow-y-auto custom-scrollbar">
           <div className="px-4 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             Main Menu
@@ -96,7 +96,7 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Bottom Actions */}
+        {}
         <div className="p-4 border-t border-slate-800 bg-slate-950">
           <div className="space-y-1">
             <button
@@ -113,9 +113,9 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* --- MOBILE BOTTOM NAVIGATION --- */}
+      {}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-lg border-t border-slate-800 flex justify-between items-center px-1 py-1 z-50 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
-        {/* 1. Loop Main Menu Items */}
+        {}
         {sidebarItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -161,7 +161,7 @@ export default function Sidebar() {
           );
         })}
 
-        {/* 2. Manual Logout Button (Item ke-5) */}
+        {}
         <button
           onClick={handleLogout}
           className="relative flex flex-col items-center justify-center w-full py-3 gap-1 transition-all duration-300 group text-slate-500 hover:text-red-500"

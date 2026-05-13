@@ -1,4 +1,5 @@
 import { decodeHTMLEntities } from "@/app/helper/helper";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 import { StarterDeckDetailProps } from "@/app/types/Card";
 import React from "react";
 
@@ -42,7 +43,7 @@ const StarterCard = ({
         }
       `}
     >
-      {/* Label ID Deck (Top Left) */}
+      {}
       <div
         className={`absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider
         ${isSelected ? "bg-amber-400 text-slate-900" : "bg-slate-950/80 text-slate-400 backdrop-blur-sm"}
@@ -51,7 +52,7 @@ const StarterCard = ({
         {e.id}
       </div>
 
-      {/* Image Container */}
+      {}
       <div className="relative  rounded-lg mb-3 aspect-2/3">
         <img
           onClick={(ev) => {
@@ -62,17 +63,17 @@ const StarterCard = ({
           className={`w-full h-full object-cover transition-transform duration-500 ease-in-out cursor-zoom-in
             ${isSelected ? "scale-110" : "group-hover:rotate-6 grayscale-30% group-hover:grayscale-0"}
           `}
-          src={e.cards[0].img_full_url}
+          src={getImageProxyUrl(e.cards[0].img_full_url)}
           alt={e.cards[0].name}
           loading="lazy"
         />
-        {/* Shine Effect Overlay */}
+        {}
         {isSelected && (
           <div className="absolute inset-0 bg-linear-to-tr from-amber-500/10 to-transparent pointer-events-none" />
         )}
       </div>
 
-      {/* Card Info */}
+      {}
       <div className="text-center space-y-2">
         <h3
           className={`text-[11px] md:text-xs font-bold truncate px-1 transition-colors ${isSelected ? "text-amber-400" : "text-slate-300"}`}
@@ -80,7 +81,7 @@ const StarterCard = ({
           {decodeHTMLEntities(e.cards[0].name)}
         </h3>
 
-        {/* Selection Indicator / Button */}
+        {}
         <div
           className={`
           w-full py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all duration-300

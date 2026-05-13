@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Header from "../components/onboarding/Header";
-import { ChevronRight, X, Loader2, Anchor } from "lucide-react"; // Tambah icon Anchor jika mau, atau tetap Chevron
+import { ChevronRight, X, Loader2, Anchor } from "lucide-react";
 import { StarterDeckDetailProps } from "../types/Card";
 import StarterCard from "../components/onboarding/StarterCard";
 import { useRouter } from "next/navigation";
 import AlertCard from "../components/ui/AlertCard";
 import GlassLayer from "../components/ui/GlassLayer";
+import { getImageProxyUrl } from "../helper/imageProxy";
 
 const DECK_FILES = [
   "st01",
@@ -65,7 +66,6 @@ const OnboardingPage = () => {
     subtitle: "",
   });
 
-  // --- HELPERS & EFFECTS (Sama seperti sebelumnya, hanya logic) ---
   const showAlert = (
     color: string,
     title: string,
@@ -143,20 +143,19 @@ const OnboardingPage = () => {
   };
 
   return (
-    // Background Dark Slate (Deep Ocean)
     <div className="min-h-screen bg-slate-950 pb-24 text-slate-200 selection:bg-amber-500/30">
       <Header />
 
       <main className="pt-24 w-full px-4">
         <div className="max-w-7xl mx-auto flex flex-col items-center justify-center">
-          {/* Hero Section */}
+          {}
           <div className="text-center mb-10 animate-fade-in-up">
-            {/* Badge yang lebih premium */}
+            {}
             <div className="inline-flex items-center gap-2 bg-slate-900 border border-amber-500/30 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest text-amber-400 mb-4 shadow-lg shadow-black/20">
               <span>⚔️</span> WELCOME NEW CAPTAIN
             </div>
 
-            {/* Font Serif untuk nuansa One Piece / Peta */}
+            {}
             <h1 className="text-3xl md:text-5xl font-serif font-extrabold text-white mb-3 tracking-wide drop-shadow-lg">
               Choose Your <span className="text-amber-400">Vessel</span>
             </h1>
@@ -168,7 +167,7 @@ const OnboardingPage = () => {
             </p>
           </div>
 
-          {/* Grid Content */}
+          {}
           {isFetchingDecks ? (
             <div className="flex flex-col items-center justify-center h-64 text-amber-500/50">
               <Loader2 className="w-10 h-10 animate-spin mb-4" />
@@ -195,7 +194,7 @@ const OnboardingPage = () => {
         </div>
       </main>
 
-      {/* --- MODAL IMAGE PREVIEW --- */}
+      {}
       {previewImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200"
@@ -217,10 +216,10 @@ const OnboardingPage = () => {
               </div>
             </button>
 
-            {/* Frame Emas di sekitar Preview */}
+            {}
             <div className="p-1.5 bg-linear-to-br from-amber-300 via-amber-600 to-amber-800 rounded-2xl shadow-2xl shadow-amber-900/50">
               <img
-                src={previewImage}
+                src={getImageProxyUrl(previewImage)}
                 alt="Card Preview"
                 className="w-full h-auto rounded-xl"
               />
@@ -229,7 +228,7 @@ const OnboardingPage = () => {
         </div>
       )}
 
-      {/* --- FLOATING ACTION BUTTON --- */}
+      {}
       <div className="fixed bottom-6 right-6 z-30 md:bottom-10 md:right-10">
         <button
           onClick={handleFinalRegister}

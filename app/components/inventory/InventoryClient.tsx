@@ -16,6 +16,7 @@ import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "@heroui/tooltip";
 import { decodeHTMLEntities, getAsiaImageUrl } from "@/app/helper/helper";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 import PreviewCard from "../global/PreviewCard";
 
 interface UserInventory {
@@ -169,7 +170,7 @@ const InventoryClient = ({
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-6 md:p-8 ">
-      {/* Header & Filters */}
+      {}
       <div className="max-w-7xl mx-auto space-y-6 custom-scrollbar">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-800 pb-6">
           <div>
@@ -185,9 +186,9 @@ const InventoryClient = ({
               cards displayed.
             </p>
           </div>
-          {/* Search & Filter Group && Tab Switcher */}
+          {}
           <div className="flex md:flex-row flex-col gap-5 items-end w-full ">
-            {/* Search & Filter Group */}
+            {}
             <div className="flex items-center gap-3 w-full md:w-auto flex-1">
               <div className="relative group flex-1 md:w-64">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -205,7 +206,7 @@ const InventoryClient = ({
               <div className="w-32 relative">
                 <div className="pl-2">
                   {" "}
-                  {/* Wrapper to adjust padding if DropDown doesn't support className */}
+                  {}
                   <DropDown
                     listItem={[
                       "All Colors",
@@ -221,7 +222,7 @@ const InventoryClient = ({
                 </div>
               </div>
             </div>
-            {/* Tab Switcher */}
+            {}
             <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
               <Tooltip
                 content={
@@ -265,7 +266,7 @@ const InventoryClient = ({
           </div>
         </div>
 
-        {/* Grid Display */}
+        {}
         {filteredInventory.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500">
             <PackageOpen className="w-16 h-16 mb-4 opacity-20" />
@@ -281,7 +282,7 @@ const InventoryClient = ({
                   key={index}
                   className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
                 >
-                  {/* Card Image Area */}
+                  {}
                   <div
                     className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
                     onClick={() => {
@@ -290,12 +291,12 @@ const InventoryClient = ({
                     }}
                   >
                     <img
-                      src={getAsiaImageUrl(card.cardImgUrl)}
+                      src={getImageProxyUrl(getAsiaImageUrl(card.cardImgUrl))}
                       alt={decodeHTMLEntities(card.cardName)}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
-                    {/* Floating Badges */}
+                    {}
                     <div className="absolute top-2 right-2 z-10">
                       <Tooltip
                         content={
@@ -329,11 +330,11 @@ const InventoryClient = ({
                       </div>
                     )}
 
-                    {/* Hover Overlay for Quick View */}
+                    {}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                   </div>
 
-                  {/* Actions Footer */}
+                  {}
                   <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
                     <h3 className="text-xs font-bold text-slate-300 truncate text-center">
                       {decodeHTMLEntities(card.cardName)}
@@ -372,7 +373,7 @@ const InventoryClient = ({
                   key={index}
                   className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all duration-300 flex flex-col"
                 >
-                  {/* Card Image Area */}
+                  {}
                   <div
                     className="relative aspect-3/4 overflow-hidden bg-slate-950 cursor-pointer"
                     onClick={() => {
@@ -381,12 +382,12 @@ const InventoryClient = ({
                     }}
                   >
                     <img
-                      src={getAsiaImageUrl(card.cardImgUrl)}
+                      src={getImageProxyUrl(getAsiaImageUrl(card.cardImgUrl))}
                       alt={decodeHTMLEntities(card.cardName)}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
-                    {/* Floating Badges */}
+                    {}
                     <div className="absolute top-2 right-2 z-10">
                       <Tooltip
                         content={
@@ -402,11 +403,11 @@ const InventoryClient = ({
                       </Tooltip>
                     </div>
 
-                    {/* Hover Overlay for Quick View */}
+                    {}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                   </div>
 
-                  {/* Actions Footer */}
+                  {}
                   <div className="p-3 bg-slate-900 border-t border-slate-800 space-y-2">
                     <h3 className="text-xs font-bold text-slate-300 truncate text-center">
                       {decodeHTMLEntities(card.cardName)}
@@ -438,14 +439,14 @@ const InventoryClient = ({
         )}
       </div>
 
-      {/* --- MODALS --- */}
+      {}
 
-      {/* 1. Image Preview Modal */}
+      {}
       {isShowCard && (
         <PreviewCard setIsShowCard={setIsShowCard} cardId={showCardId} />
       )}
 
-      {/* 2. Marketplace Sell Modal */}
+      {}
       {isShowSellDetailMarket && sellDetailCard && (
         <SellModal
           title="List on Marketplace"
@@ -463,7 +464,7 @@ const InventoryClient = ({
         />
       )}
 
-      {/* 3. System Sell Modal */}
+      {}
       {isShowSellDetailSystem && sellDetailCard && (
         <SellModal
           title="Quick Sell to System"
@@ -479,7 +480,7 @@ const InventoryClient = ({
         />
       )}
 
-      {/* Alert Toast */}
+      {}
       {showAlert && (
         <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
           <AlertCard
@@ -516,7 +517,7 @@ const SellModal = ({
         className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
+        {}
         <div className="p-5 border-b border-slate-800 flex justify-between items-start">
           <div>
             <h3 className="text-lg font-bold text-white">{title}</h3>
@@ -531,10 +532,10 @@ const SellModal = ({
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Card Info */}
+          {}
           <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
             <img
-              src={getAsiaImageUrl(card.cardImgUrl)}
+              src={getImageProxyUrl(getAsiaImageUrl(card.cardImgUrl))}
               className="w-16 h-auto rounded-md"
               alt=""
             />
@@ -553,7 +554,7 @@ const SellModal = ({
             </div>
           </div>
 
-          {/* Inputs */}
+          {}
           <div className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-400 uppercase">
@@ -591,7 +592,7 @@ const SellModal = ({
             )}
           </div>
 
-          {/* Summary Box */}
+          {}
           {type === "market" ? (
             <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg">
               <p className="text-xs text-amber-500 text-center">
@@ -619,7 +620,7 @@ const SellModal = ({
           )}
         </div>
 
-        {/* Actions */}
+        {}
         <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900">
           <button
             onClick={onClose}

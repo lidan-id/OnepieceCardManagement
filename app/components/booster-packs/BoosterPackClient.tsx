@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Package, Sparkles, Wallet, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AlertCard from "../ui/AlertCard";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 
 const GlassCard = ({
   children,
@@ -20,8 +21,8 @@ const GlassCard = ({
 );
 
 type UserPack = {
-  id: string; // The unique ID of the owned pack instance
-  packId: string; // The type (e.g. 569101)
+  id: string;
+  packId: string;
   packName: string;
 };
 
@@ -62,7 +63,7 @@ export default function BoosterPackClient({
   const [ownedPacks, setOwnedPacks] = useState<UserPack[]>(user.packs || []);
   const [isOpening, setIsOpening] = useState(false);
   const [openedCards, setOpenedCards] = useState<Card[] | null>(null);
-  const [openingPackId, setOpeningPackId] = useState<string | null>(null); // The ID of the pack being opened
+  const [openingPackId, setOpeningPackId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -122,7 +123,6 @@ export default function BoosterPackClient({
     setIsOpening(true);
 
     try {
-      // Small delay for animation start
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const res = await fetch("/api/booster-packs/open", {
@@ -138,12 +138,11 @@ export default function BoosterPackClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      // Simulate opening animation time
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       setOpenedCards(data.cards);
       setOwnedPacks((prev) => prev.filter((p) => p.id !== userPackId));
-      setBalance(user.balance); // In case balance changed (not expected here but safe)
+      setBalance(user.balance);
     } catch (error: any) {
       alert(error.message);
       setIsOpening(false);
@@ -158,7 +157,6 @@ export default function BoosterPackClient({
     router.refresh();
   };
 
-  // Group owned packs by packId to count how many of each type the user has
   const groupedOwnedPacks = ownedPacks.reduce(
     (acc, pack) => {
       if (!acc[pack.packId]) {
@@ -239,7 +237,7 @@ export default function BoosterPackClient({
         }
       `}</style>
 
-      {/* --- User Stats --- */}
+      {}
       <GlassCard className="flex items-center justify-between p-6 bg-linear-to-r from-slate-900/80 to-slate-800/80 border-slate-600/50">
         <div>
           <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
@@ -263,7 +261,7 @@ export default function BoosterPackClient({
         </div>
       </GlassCard>
 
-      {/* --- My Packs --- */}
+      {}
       {ownedPacks.length > 0 && (
         <section>
           <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3 pl-2 border-l-4 border-amber-500">
@@ -280,7 +278,7 @@ export default function BoosterPackClient({
                 </div>
                 <div className="h-56 bg-slate-800/30 rounded-xl flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-linear-to-br from-slate-800/50 to-transparent"></div>
-                  {/* Pack Art Placeholder */}
+                  {}
                   <div className="w-36 h-48 bg-linear-to-br from-slate-700 to-slate-600 rounded-lg flex items-center justify-center text-center p-3 border border-slate-500/30 shadow-2xl skew-y-3 group-hover:skew-y-0 transition-transform duration-500">
                     <span className="font-bold text-slate-300 text-sm drop-shadow-md">
                       {group.name}
@@ -311,14 +309,14 @@ export default function BoosterPackClient({
         </section>
       )}
 
-      {/* --- Shop --- */}
+      {}
       <section>
         <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3 pl-2 border-l-4 border-purple-500">
           Booster Pack Shop
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {availablePacks
-            .filter((pack) => !pack.title_parts.label?.includes("ST-")) // Maybe filter out starter decks if wanted, but user asked for "booster pack"
+            .filter((pack) => !pack.title_parts.label?.includes("ST-"))
             .map((pack) => (
               <GlassCard
                 key={pack.id}
@@ -360,7 +358,7 @@ export default function BoosterPackClient({
         </div>
       </section>
 
-      {/* --- Opening Animation / Modal --- */}
+      {}
       {(isOpening || openedCards) && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
           {!openedCards ? (
@@ -395,7 +393,7 @@ export default function BoosterPackClient({
                     style={{ animationDelay: `${idx * 150}ms` }}
                   >
                     <img
-                      src={card.cardImgUrl}
+                      src={getImageProxyUrl(card.cardImgUrl)}
                       alt={card.cardName}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {

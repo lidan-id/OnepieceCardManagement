@@ -82,9 +82,9 @@ const DashboardClient = ({
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-amber-500/30">
-      {/* Main Container */}
+      {}
       <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
-        {/* Header Section */}
+        {}
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between bg-slate-900/50 p-6 rounded-2xl border border-slate-800 backdrop-blur-sm">
           <div className="space-y-1">
             <h1 className="text-3xl font-extrabold tracking-tight text-white">
@@ -98,7 +98,7 @@ const DashboardClient = ({
             </p>
           </div>
 
-          {/* Balance Card */}
+          {}
           <div className="flex items-center gap-4 bg-slate-800/80 px-6 py-3 rounded-xl border border-slate-700 shadow-lg">
             <div className="p-2 bg-amber-500/10 rounded-full">
               <Wallet className="w-6 h-6 text-amber-500" />
@@ -114,7 +114,7 @@ const DashboardClient = ({
           </div>
         </div>
 
-        {/* Decks Section */}
+        {}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold flex items-center gap-2">

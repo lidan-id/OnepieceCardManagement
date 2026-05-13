@@ -18,6 +18,7 @@ import React, { useEffect, useState } from "react";
 import AlertCard from "../ui/AlertCard";
 import { useRouter } from "next/navigation";
 import { getAsiaImageUrl } from "@/app/helper/helper";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 
 interface UserInventory {
   id: string;
@@ -232,7 +233,6 @@ const DeckBuilderClient = ({
       }));
       console.log("Current Deck Cards for Import:", currentDeckCards);
 
-      // Gabungkan kartu collection dan deck saat ini untuk validasi
       const combinedCards = [...collectionCards, ...currentDeckCards];
 
       const combineQuantity = combinedCards.reduce((acc, card) => {
@@ -247,7 +247,6 @@ const DeckBuilderClient = ({
         return [...acc, card];
       }, [] as UserInventory[]);
 
-      // Cek apakah kartu yang diimpor itu ada atau tidak
       let hasLeaderInVariants = false;
       for (const line of lines) {
         const match = line.match(/^(\d+)[xX]\s*(.+)$/);
@@ -314,12 +313,10 @@ const DeckBuilderClient = ({
           }
         }
 
-        // Ambil kartu dari varian yang tersedia satu per satu sampai kuantitas terpenuhi
         let remainingNeeded = quantity;
         for (const variant of availableVariants) {
           if (remainingNeeded <= 0) break;
 
-          // Ambil sebanyak yang dibutuhkan, tapi tidak melebihi stok varian tersebut
           const takeAmount = Math.min(variant.quantity, remainingNeeded);
 
           importedDeck.push({
@@ -409,9 +406,9 @@ const DeckBuilderClient = ({
   return (
     <>
       <div className="h-screen bg-slate-950 text-slate-200 flex flex-col md:flex-row overflow-hidden">
-        {/* --- LEFT SIDE: COLLECTION --- */}
+        {}
         <div className="flex-1 flex flex-col h-[50vh] md:h-full border-b md:border-b-0 md:border-r border-slate-800">
-          {/* Header */}
+          {}
           <div className="p-4 bg-slate-900 border-b border-slate-800 space-y-3 z-10 shadow-md">
             <div className="flex items-center justify-between">
               <h1 className="font-bold text-lg text-white flex items-center gap-2">
@@ -423,7 +420,7 @@ const DeckBuilderClient = ({
               </span>
             </div>
 
-            {/* Search */}
+            {}
             <div className="relative group">
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
               <input
@@ -436,7 +433,7 @@ const DeckBuilderClient = ({
             </div>
           </div>
 
-          {/* Grid Area */}
+          {}
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-950/50">
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {collection.map((card) => {
@@ -458,17 +455,17 @@ const DeckBuilderClient = ({
                   >
                     <div className="relative aspect-3/4 rounded-lg overflow-hidden border border-slate-800 group-hover:border-amber-500/50 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all">
                       <img
-                        src={getAsiaImageUrl(card.cardImgUrl)}
+                        src={getImageProxyUrl(getAsiaImageUrl(card.cardImgUrl))}
                         alt={card.cardName}
                         className="w-full h-full object-cover"
                       />
 
-                      {/* Quantity Badge */}
+                      {}
                       <div className="absolute bottom-0 right-0 bg-amber-500 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg">
                         x{card.quantity}
                       </div>
 
-                      {/* Type Badge (Leader) */}
+                      {}
                       {card.cardCategory === "Leader" && (
                         <div className="absolute top-0 left-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br-lg">
                           L
@@ -482,7 +479,7 @@ const DeckBuilderClient = ({
           </div>
         </div>
 
-        {/* --- MIDDLE: SEPARATOR (Desktop) / INDICATOR --- */}
+        {}
         <div className="hidden md:flex flex-col justify-center items-center px-2 bg-slate-900 border-r border-slate-800 z-20">
           <div className="bg-slate-800 p-2 rounded-full mb-2">
             <ArrowRight className="w-5 h-5 text-slate-500" />
@@ -493,9 +490,9 @@ const DeckBuilderClient = ({
           </div>
         </div>
 
-        {/* --- RIGHT SIDE: DECK --- */}
+        {}
         <div className="flex-1 flex flex-col h-[50vh] md:h-full bg-slate-900">
-          {/* Header */}
+          {}
           <div className="p-4 bg-slate-900 border-b border-slate-800 z-10 shadow-md">
             <div className="flex items-center justify-between mb-3">
               <h1 className="font-bold text-lg text-white flex items-center gap-2">
@@ -528,7 +525,7 @@ const DeckBuilderClient = ({
               </div>
             </div>
 
-            {/* Progress Bar */}
+            {}
             <div className="space-y-1">
               <div className="flex justify-between text-xs font-semibold">
                 <span
@@ -553,7 +550,7 @@ const DeckBuilderClient = ({
             </div>
           </div>
 
-          {/* Grid Area */}
+          {}
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-900">
             {newDeck.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50 space-y-3">
@@ -574,22 +571,22 @@ const DeckBuilderClient = ({
                       className={`relative aspect-3/4 rounded-lg overflow-hidden border transition-all ${card.cardCategory === "Leader" ? "border-amber-500 ring-2 ring-amber-500/20" : "border-slate-700 hover:border-red-500/50"}`}
                     >
                       <img
-                        src={getAsiaImageUrl(card.cardImgUrl)}
+                        src={getImageProxyUrl(getAsiaImageUrl(card.cardImgUrl))}
                         alt={card.cardName}
                         className="w-full h-full object-cover"
                       />
 
-                      {/* Quantity Badge */}
+                      {}
                       <div className="absolute bottom-0 right-0 bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-tl-lg border-t border-l border-slate-600">
                         x{card.quantity}
                       </div>
 
-                      {/* Leader Badge */}
+                      {}
                       {card.cardCategory === "Leader" && (
                         <div className="absolute inset-0 border-2 border-amber-400 rounded-lg pointer-events-none shadow-[inset_0_0_10px_rgba(245,158,11,0.5)]"></div>
                       )}
 
-                      {/* Hover Remove Icon */}
+                      {}
                       <div className="absolute inset-0 bg-red-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <div className="bg-red-600 text-white p-1 rounded-full">
                           <X className="w-4 h-4" />
@@ -604,7 +601,7 @@ const DeckBuilderClient = ({
         </div>
       </div>
 
-      {/* --- SAVE MODAL --- */}
+      {}
       {isShowSaveModal && (
         <div
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -663,7 +660,7 @@ const DeckBuilderClient = ({
         </div>
       )}
 
-      {/* --- ALERTS & LOADING --- */}
+      {}
       {showAlert && (
         <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
           <AlertCard

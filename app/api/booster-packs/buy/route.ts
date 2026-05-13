@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check availability and balance in a transaction
+    
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: userId },
@@ -28,13 +28,13 @@ export async function POST(req: Request) {
         throw new Error("Insufficient balance");
       }
 
-      // Deduct balance
+      
       const updatedUser = await tx.user.update({
         where: { id: userId },
         data: { balance: { decrement: PACK_PRICE } },
       });
 
-      // Add pack to inventory
+      
       const newPack = await tx.userPack.create({
         data: {
           userId,

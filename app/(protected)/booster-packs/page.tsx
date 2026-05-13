@@ -28,7 +28,7 @@ async function getUser() {
       return null;
     }
 
-    // Fetch user details including inventory of packs
+    
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -38,7 +38,7 @@ async function getUser() {
 
     if (!user) return null;
 
-    // Serialize user data to avoid Date object issues
+    
     return JSON.parse(JSON.stringify(user));
   } catch (error) {
     console.error("Auth error:", error);

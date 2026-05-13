@@ -22,6 +22,7 @@ import PreviewCard from "../global/PreviewCard";
 import DropDown from "../ui/DropDown";
 import { PackInfo } from "@/app/types/PackInfo";
 import { motion, AnimatePresence } from "framer-motion";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 
 const MarketPlaceClient = ({
   userData,
@@ -55,7 +56,6 @@ const MarketPlaceClient = ({
   const [shopIndex, setShopIndex] = useState(0);
   const [ITEMS_PER_ROW, setITEMS_PER_ROW] = useState(3);
 
-  // --- RESIZE LOGIC ---
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -75,7 +75,6 @@ const MarketPlaceClient = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // --- FILTER LOGIC ---
   const filterData = async () => {
     const response = await fetch(
       `/api/filter-packs?packId=${selectedPack.id}&color=${selectedColor}&search=${searchValue}`,
@@ -97,7 +96,6 @@ const MarketPlaceClient = ({
     );
   }, [marketplaceData, searchValue]);
 
-  // --- ROW GENERATION FOR VIRTUOSO ---
   const rows = useMemo(() => {
     const result = [];
     for (let i = 0; i < data.length; i += ITEMS_PER_ROW) {
@@ -114,7 +112,6 @@ const MarketPlaceClient = ({
     return result;
   }, [filteredMarketplaceData, ITEMS_PER_ROW]);
 
-  // --- STATES ---
   const [isShowHeader, setIsShowHeader] = useState(true);
 
   const [isShowCard, setIsShowCard] = useState(false);
@@ -152,7 +149,6 @@ const MarketPlaceClient = ({
     "Black",
   ];
 
-  // --- ACTIONS ---
   const openSystemBuyModal = (card: CardDetailProps) => {
     setMarketPrices({ lowest: null, highest: null });
     setShowDetailPurchase(card);
@@ -317,7 +313,7 @@ const MarketPlaceClient = ({
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-200">
-      {/* --- HEADER --- */}
+      {}
       <AnimatePresence>
         {isShowHeader && (
           <motion.div
@@ -340,7 +336,7 @@ const MarketPlaceClient = ({
                   </p>
                 </div>
 
-                {/* Tab Switcher */}
+                {}
                 <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex">
                   <button
                     onClick={() => setShopIndex(0)}
@@ -367,7 +363,7 @@ const MarketPlaceClient = ({
                 </div>
               </div>
 
-              {/* Search Bar */}
+              {}
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
                 <input
@@ -379,14 +375,14 @@ const MarketPlaceClient = ({
                 />
               </div>
 
-              {/* Dropdown filter */}
+              {}
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                {/* Filter Icon Indicator (Desktop only) */}
+                {}
                 <div className="hidden lg:flex items-center justify-center px-2 text-slate-500">
                   <Filter className="w-4 h-4" />
                 </div>
 
-                {/* Pack Dropdown */}
+                {}
                 <div
                   onClick={() => {
                     setIsPackDropdownOpen(!isPackDropdownOpen);
@@ -421,7 +417,7 @@ const MarketPlaceClient = ({
                   </AnimatePresence>
                 </div>
 
-                {/* Color Dropdown */}
+                {}
                 <div
                   onClick={() => {
                     setIsColorDropdownOpen(!isColorDropdownOpen);
@@ -467,7 +463,7 @@ const MarketPlaceClient = ({
         )}
       </AnimatePresence>
 
-      {/* --- LIST SECTION (Virtuoso) --- */}
+      {}
       <div className="flex-1 bg-slate-950 p-4">
         {shopIndex === 0 && (
           <Virtuoso
@@ -499,7 +495,9 @@ const MarketPlaceClient = ({
                       >
                         {card.img_full_url ? (
                           <img
-                            src={getAsiaImageUrl(card.img_full_url)}
+                            src={getImageProxyUrl(
+                              getAsiaImageUrl(card.img_full_url),
+                            )}
                             alt={decodeHTMLEntities(card.name)}
                             loading="lazy"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -575,7 +573,9 @@ const MarketPlaceClient = ({
                         }}
                       >
                         <img
-                          src={getAsiaImageUrl(marketItem.inventory.cardImgUrl)}
+                          src={getImageProxyUrl(
+                            getAsiaImageUrl(marketItem.inventory.cardImgUrl),
+                          )}
                           alt={decodeHTMLEntities(
                             marketItem.inventory.cardName,
                           )}
@@ -634,12 +634,12 @@ const MarketPlaceClient = ({
         )}
       </div>
 
-      {/* 1. Image Preview */}
+      {}
       {isShowCard && (
         <PreviewCard setIsShowCard={setIsShowCard} cardId={showCardId} />
       )}
 
-      {/* 2. System Purchase Modal */}
+      {}
       {isShowDetailPurchase && ShowDetailPurchase && (
         <div
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
@@ -650,10 +650,9 @@ const MarketPlaceClient = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            // max-w-md diubah jadi max-w-3xl agar lebih lebar, dan ditambahkan max-h-[95vh] flex flex-col agar footer tidak terpotong
             className="bg-slate-900 w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
           >
-            {/* HEADER (Sticky di atas) */}
+            {}
             <div className="p-5 border-b border-slate-800 flex justify-between items-start shrink-0">
               <div>
                 <h3 className="text-lg font-bold text-white">System Shop</h3>
@@ -672,13 +671,15 @@ const MarketPlaceClient = ({
               </button>
             </div>
 
-            {/* BODY (Dibagi jadi 2 Kolom) */}
+            {}
             <div className="p-6 overflow-y-auto custom-scrollbar flex flex-col md:flex-row gap-8">
-              {/* --- KOLOM KIRI (Info Kartu & Peringatan) --- */}
+              {}
               <div className="w-full md:w-5/12 flex flex-col gap-4 shrink-0">
                 <div className="relative aspect-3/4 w-full max-w-50 mx-auto rounded-xl overflow-hidden border border-slate-700 shadow-lg">
                   <img
-                    src={getAsiaImageUrl(ShowDetailPurchase.img_full_url)}
+                    src={getImageProxyUrl(
+                      getAsiaImageUrl(ShowDetailPurchase.img_full_url),
+                    )}
                     className="w-full h-full object-cover"
                     alt={decodeHTMLEntities(ShowDetailPurchase.name)}
                   />
@@ -706,9 +707,9 @@ const MarketPlaceClient = ({
                 </div>
               </div>
 
-              {/* --- KOLOM KANAN (Harga & Input) --- */}
+              {}
               <div className="w-full md:w-7/12 flex flex-col justify-center space-y-6">
-                {/* Fitur Find Price */}
+                {}
                 <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800/50 pb-3">
                     <span className="text-xs font-bold text-slate-400 uppercase">
@@ -764,7 +765,7 @@ const MarketPlaceClient = ({
                   )}
                 </div>
 
-                {/* Form Input */}
+                {}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -791,7 +792,7 @@ const MarketPlaceClient = ({
                   </div>
                 </div>
 
-                {/* Total */}
+                {}
                 <div className="flex justify-between items-end pt-4 border-t border-slate-800">
                   <span className="text-sm font-semibold text-slate-400">
                     Total Calculation:
@@ -805,7 +806,7 @@ const MarketPlaceClient = ({
               </div>
             </div>
 
-            {/* FOOTER (Sticky di Bawah) */}
+            {}
             <div className="p-5 border-t border-slate-800 flex gap-3 bg-slate-900 shrink-0">
               <button
                 onClick={() => {
@@ -832,7 +833,7 @@ const MarketPlaceClient = ({
         </div>
       )}
 
-      {/* 3. Marketplace Purchase Modal */}
+      {}
       {isShowDetailMarketplacePurchase && ShowDetailMarketplacePurchase && (
         <div
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
@@ -860,11 +861,13 @@ const MarketPlaceClient = ({
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Card Info */}
+              {}
               <div className="flex gap-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
                 <img
-                  src={getAsiaImageUrl(
-                    ShowDetailMarketplacePurchase.inventory.cardImgUrl,
+                  src={getImageProxyUrl(
+                    getAsiaImageUrl(
+                      ShowDetailMarketplacePurchase.inventory.cardImgUrl,
+                    ),
                   )}
                   className="w-16 h-auto rounded-md"
                   alt=""
@@ -883,7 +886,7 @@ const MarketPlaceClient = ({
                 </div>
               </div>
 
-              {/* Price Info */}
+              {}
               <div className="bg-slate-800 p-4 rounded-xl flex justify-between items-center">
                 <div>
                   <p className="text-xs text-slate-400">Price per unit</p>
@@ -929,7 +932,7 @@ const MarketPlaceClient = ({
         </div>
       )}
 
-      {/* 4. Remove Listing Modal */}
+      {}
       {isShowRemoveModal && cardToRemove && (
         <div
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200"
@@ -955,7 +958,9 @@ const MarketPlaceClient = ({
             <div className="p-6 text-center space-y-4">
               <div className="mx-auto w-20 h-28 bg-slate-800 rounded-lg overflow-hidden border border-slate-700 mb-2">
                 <img
-                  src={getAsiaImageUrl(cardToRemove.inventory.cardImgUrl)}
+                  src={getImageProxyUrl(
+                    getAsiaImageUrl(cardToRemove.inventory.cardImgUrl),
+                  )}
                   className="w-full h-full object-cover opacity-50 grayscale"
                   alt=""
                 />
@@ -997,7 +1002,7 @@ const MarketPlaceClient = ({
         </div>
       )}
 
-      {/* --- ALERTS & OVERLAYS --- */}
+      {}
       {showAlert && (
         <div className="fixed z-110 bottom-5 right-5 animate-in slide-in-from-right-5">
           <AlertCard

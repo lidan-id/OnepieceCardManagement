@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import React, { useEffect } from "react";
 import PreviewCardSkeleton from "./PreviewCardSkeleton";
+import { getImageProxyUrl } from "@/app/helper/imageProxy";
 
-// Props disesuaikan dengan kebutuhan Anda, tambahkan cardData jika datanya dinamis
 interface PreviewCardProps {
   setIsShowCard: (value: boolean) => void;
   cardId: string;
@@ -70,7 +70,7 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
           className="relative w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] flex flex-col md:flex-row bg-slate-900 rounded-2xl md:rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* --- Close Button (Mobile Floating) --- */}
+          {}
           <button
             onClick={() => setIsShowCard(false)}
             className="absolute top-4 right-4 z-50 md:hidden bg-black/50 p-2 rounded-full text-white"
@@ -78,11 +78,11 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
             <X className="w-6 h-6" />
           </button>
 
-          {/* --- KIRI: Image Area (Sticky on Desktop) --- */}
+          {}
           <div className="w-full md:w-[380px] p-6 md:p-8 bg-slate-950/40 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-800">
             <div className="relative w-full max-w-[250px] md:max-w-full aspect-[3/4] rounded-xl overflow-hidden shadow-2xl border border-slate-700 group">
               <img
-                src={data.img_full_url}
+                src={getImageProxyUrl(data.img_full_url)}
                 alt="Card"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
@@ -94,9 +94,9 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
             </div>
           </div>
 
-          {/* --- KANAN: Content Area (Scrollable) --- */}
+          {}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header (Sticky) */}
+            {}
             <div className="p-5 md:p-6 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
               <div>
                 <h2 className="text-xl md:text-2xl font-black text-white leading-tight uppercase tracking-tight">
@@ -114,9 +114,9 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
               </button>
             </div>
 
-            {/* Scrollable Details */}
+            {}
             <div className="flex-1 overflow-y-auto p-5 md:p-8 custom-scrollbar space-y-8">
-              {/* Grid Statistik Utama */}
+              {}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
                   <StatLabel icon={Target} label="Cost" />
@@ -144,7 +144,7 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
                 </div>
               </div>
 
-              {/* Tags / Properties */}
+              {}
               <div className="flex flex-wrap gap-6 text-sm">
                 <div className="space-y-2">
                   <StatLabel icon={Binary} label="Color" />
@@ -174,7 +174,7 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
                 </div>
               </div>
 
-              {/* Effect Section */}
+              {}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-amber-500">
                   <Info className="w-4 h-4" />
@@ -199,7 +199,7 @@ const PreviewCard = ({ setIsShowCard, cardId }: PreviewCardProps) => {
                 </div>
               </div>
 
-              {/* Footer / ID */}
+              {}
               <div className="pt-6 border-t border-slate-800 flex justify-between items-center opacity-50">
                 <span className="text-[10px] text-slate-500 uppercase tracking-tighter">
                   Official Card Game Data

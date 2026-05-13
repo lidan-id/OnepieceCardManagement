@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. BACA SEMUA KARTU & KELOMPOKKAN BERDASARKAN RARITY
+    
     const allCards: any[] = [];
     files.forEach((file) => {
       const filePath = path.join(packDir, file);
@@ -67,12 +67,12 @@ export async function POST(req: Request) {
       SuperRare: [],
       SecretRare: [],
       Leader: [],
-      AA: [], // Alternate Arts / Specials
+      AA: [], 
       Promo: [],
     };
 
     allCards.forEach((card) => {
-      // Deteksi Alternate Art atau Kartu Spesial (dari suffix _p atau rarity khusus)
+      
       const isAA =
         card.id.includes("_p") ||
         ["Special Card", "Special", "TreasureRare"].includes(card.rarity);
@@ -85,10 +85,10 @@ export async function POST(req: Request) {
       else if (card.rarity === "SecretRare") pools.SecretRare.push(card);
       else if (card.rarity === "Leader") pools.Leader.push(card);
       else if (card.rarity === "Promo") pools.Promo.push(card);
-      else pools.Common.push(card); // Fallback jika format rarity aneh
+      else pools.Common.push(card); 
     });
 
-    // 2. FUNGSI PENARIKAN (PULL) 12 KARTU UNIK
+    
     const selectedCards: any[] = [];
     const selectedIds = new Set();
 
@@ -98,14 +98,14 @@ export async function POST(req: Request) {
       count: number,
     ) => {
       for (let i = 0; i < count; i++) {
-        // Hanya pilih kartu yang belum ditarik
+        
         let available = primaryPool.filter((c) => !selectedIds.has(c.id));
 
-        // Jika pool utama habis (misal pack tidak punya SEC), ambil dari fallback pool
+        
         if (available.length === 0) {
           available = fallbackPool.filter((c) => !selectedIds.has(c.id));
         }
-        // Jika masih habis juga, ambil acak dari semua kartu tersisa
+        
         if (available.length === 0) {
           available = allCards.filter((c) => !selectedIds.has(c.id));
         }
@@ -118,41 +118,41 @@ export async function POST(req: Request) {
       }
     };
 
-    // --- ALGORITMA PULL RATE 12 KARTU (Distribusi Standar TCG) ---
+    
 
-    drawFromPool(pools.Common, pools.Uncommon, 7); // 7 Slot Common
-    drawFromPool(pools.Uncommon, pools.Common, 2); // 2 Slot Uncommon
-    drawFromPool(pools.Rare, pools.Uncommon, 1); // 1 Slot Guaranteed Rare
+    drawFromPool(pools.Common, pools.Uncommon, 7); 
+    drawFromPool(pools.Uncommon, pools.Common, 2); 
+    drawFromPool(pools.Rare, pools.Uncommon, 1); 
 
-    // 1 Slot untuk Leader (60% Peluang, kalau gagal dapat Uncommon)
+    
     if (Math.random() < 0.6 && pools.Leader.length > 0) {
       drawFromPool(pools.Leader, pools.Uncommon, 1);
     } else {
       drawFromPool(pools.Uncommon, pools.Common, 1);
     }
 
-    // 1 Hit Slot (Gacha Utama: Peluang dapat kartu mahal)
+    
     const hitRoll = Math.random() * 100;
     if (hitRoll < 8) {
-      // 8% Peluang AA / Manga (~2 Kartu per Booster Box)
+      
       drawFromPool(pools.AA, pools.SuperRare, 1);
     } else if (hitRoll < 12) {
-      // 4% Peluang Secret Rare (~1 Kartu per Booster Box)
+      
       drawFromPool(pools.SecretRare, pools.SuperRare, 1);
     } else if (hitRoll < 40) {
-      // 28% Peluang Super Rare (~6-7 Kartu per Booster Box)
+      
       drawFromPool(pools.SuperRare, pools.Rare, 1);
     } else {
-      // 60% Zonk/Standar (Dapat Rare tambahan)
+      
       drawFromPool(pools.Rare, pools.Uncommon, 1);
     }
 
-    // 3. SIMPAN KE DATABASE
+    
     const createdCards: UserInventory[] = [];
     console.log(
       "Selected Cards:",
       selectedCards.map((c) => c.rarity),
-    ); // Debug: Tampilkan kartu yang dipilih
+    ); 
     await prisma.$transaction(async (tx) => {
       for (const cardData of selectedCards) {
         const newCard = await tx.userInventory.create({
@@ -171,7 +171,7 @@ export async function POST(req: Request) {
         createdCards.push(newCard);
       }
 
-      // Hapus pack yang sudah dibuka
+      
       await tx.userPack.delete({
         where: { id: userPackId },
       });

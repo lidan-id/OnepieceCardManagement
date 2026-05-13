@@ -15,7 +15,7 @@ const LoginPage = () => {
   ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Transisi gambar yang lebih mulus
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex(
@@ -84,13 +84,13 @@ const LoginPage = () => {
 
   return (
     <div className="h-screen flex bg-slate-950 text-slate-200 overflow-hidden">
-      {/* --- LEFT SIDE: FORM --- */}
+      {}
       <div className="px-6 sm:w-[50%] w-full h-full flex flex-col justify-center items-center bg-slate-950 relative z-10">
-        {/* Background glow effect behind form */}
+        {}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-sm w-full animate-in fade-in slide-in-from-bottom-5 duration-700 relative z-20">
-          {/* Logo Area */}
+          {}
           <div className="flex flex-col items-center justify-center mb-8 space-y-3">
             <div className="bg-linear-to-br from-amber-400 to-orange-600 p-3 rounded-2xl shadow-lg shadow-amber-500/20">
               <Anchor className="w-8 h-8 text-slate-900" strokeWidth={2.5} />
@@ -163,9 +163,9 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: CAROUSEL --- */}
+      {}
       <div className="relative hidden sm:block w-[50%] h-full bg-slate-900 overflow-hidden">
-        {/* Overlay Gradient untuk transisi halus ke background gelap */}
+        {}
         <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-950/20 to-transparent z-20 pointer-events-none" />
         <div className="absolute inset-0 bg-amber-500/10 mix-blend-overlay z-20 pointer-events-none" />
 
@@ -182,7 +182,7 @@ const LoginPage = () => {
           />
         ))}
 
-        {/* Optional Caption */}
+        {}
         <div className="absolute bottom-10 right-10 z-30 text-right max-w-sm">
           <h2 className="text-3xl font-bold text-white mb-2 drop-shadow-md">
             Conquer the Seas
@@ -193,7 +193,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* --- ALERTS & LOADING --- */}
+      {}
       {showAlert && (
         <div className="fixed z-50 bottom-5 left-5 animate-in slide-in-from-left-5 duration-300">
           <AlertCard

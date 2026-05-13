@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         "Accept-Language": "en-US,en;q=0.9,id;q=0.8",
         Referer: "https://yuyu-tei.jp/",
       },
-      cache: "no-store", // Jangan simpan cache agar harga selalu realtime
+      cache: "no-store", 
     });
 
     if (!response.ok) {
@@ -47,23 +47,23 @@ export async function GET(request: Request) {
 
     const $ = cheerio.load(html);
 
-    // 1. Siapkan array untuk menampung semua harga yang ditemukan
+    
     const allPrices: number[] = [];
 
-    // 2. Loop melalui setiap elemen harga kartu di halaman tersebut
+    
     $(".card-product strong.text-end").each((index, element) => {
       const priceRaw = $(element).text().trim();
 
-      // Bersihkan teks (hanya ambil angkanya)
+      
       const numericString = priceRaw.replace(/[^0-9]/g, "");
 
       if (numericString) {
-        // Masukkan ke array sebagai angka (integer)
+        
         allPrices.push(parseInt(numericString, 10));
       }
     });
 
-    // 3. Jika array kosong (tidak ada harga yang ditemukan)
+    
     if (allPrices.length === 0) {
       return NextResponse.json(
         {
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // 4. Cari harga paling kecil menggunakan Math.min
+    
     const lowestPrice = Math.min(...allPrices);
     const highestPrice = Math.max(...allPrices);
     return NextResponse.json(

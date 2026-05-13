@@ -16,7 +16,7 @@ const RegisterPage = () => {
   ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Transisi gambar halus
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex(
@@ -67,7 +67,7 @@ const RegisterPage = () => {
       return;
     }
 
-    // Simpan data sementara sebelum onboarding
+    
     const tempData = {
       username,
       email,
@@ -79,7 +79,7 @@ const RegisterPage = () => {
 
   return (
     <div className="h-screen flex bg-slate-950 text-slate-200 overflow-hidden">
-      {/* --- LEFT SIDE: CAROUSEL --- */}
+      {}
       <div className="relative hidden sm:block w-[50%] h-full bg-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-l from-slate-950 via-slate-950/20 to-transparent z-20 pointer-events-none" />
         <div className="absolute inset-0 bg-amber-500/10 mix-blend-overlay z-20 pointer-events-none" />
@@ -97,7 +97,7 @@ const RegisterPage = () => {
           />
         ))}
 
-        {/* Floating Caption Top Left */}
+        {}
         <div className="absolute top-10 left-10 z-30">
           <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10 w-fit shadow-xl">
             <div className="bg-amber-500 p-2 rounded-xl text-slate-900 shadow-lg shadow-amber-500/20">
@@ -115,9 +115,9 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: FORM --- */}
+      {}
       <div className="px-6 sm:w-[50%] w-full h-full flex flex-col justify-center items-center bg-slate-950 relative z-10">
-        {/* Background Glow */}
+        {}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-md w-full animate-in fade-in slide-in-from-right-5 duration-700 relative z-20">
@@ -198,7 +198,7 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      {/* --- ALERTS --- */}
+      {}
       {showAlert && (
         <div className="fixed z-50 bottom-5 right-5 animate-in slide-in-from-right-5 duration-300">
           <AlertCard

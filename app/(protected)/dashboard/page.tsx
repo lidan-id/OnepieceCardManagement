@@ -17,7 +17,7 @@ const DashBoard = async () => {
 
       const dbUser = await prisma.user.findUnique({
         where: { id: userData.id },
-        select: { balance: true }, // Kita cuma butuh kolom balance
+        select: { balance: true }, 
       });
 
       if (dbUser) {
